@@ -1,0 +1,79 @@
+data:
+  test:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: flame.core.data.movie_poster_dataset
+        class: MovieGenreDataset
+        MovieGenreDataset:
+          datadir: '''dataset/movie_genres/test/images'''
+          csv_path: '''dataset/movie_genres/test/test.csv'''
+          image_extent: '''.jpg'''
+          image_size: (224, 224)
+          inner_size: 256
+      batch_size: 128
+      shuffle: True
+
+model:
+  module: flame.core.model.mobilenetv2
+  class: MobileNetV2
+  MobileNetV2:
+    num_classes: 25
+    pretrained: True
+    features_fixed: True
+
+metrics:
+  module: flame.handlers.metrics.metrics
+  class: Metrics
+  Metrics:
+    metrics:
+      loss:
+        module: flame.handlers.metrics.loss
+        class: Loss
+        Loss:
+          loss_fn: torch.nn.BCELoss()
+          output_transform: 'lambda x: (x[0].sigmoid(), x[1])'
+      accuracy:
+        module: ignite.metrics
+        class: Accuracy
+        Accuracy:
+          output_transform: 'lambda x: (x[0].sigmoid(), x[1])'
+      precision:
+        module: ignite.metrics
+        class: Precision
+        Precision:
+          average: True
+          output_transform: 'lambda x: (x[0].sigmoid(), x[1])'
+      recall:
+        module: ignite.metrics
+        class: Recall
+        Recall:
+          average: True
+          output_transform: 'lambda x: (x[0].sigmoid(), x[1])'
+    attach_to:
+      engine: '''test'''
+
+screenlogger:
+  module: flame.handlers.screenlogger
+  class: ScreenLogger
+  ScreenLogger:
+    eval_names:
+      - '''test'''
+
+checkpoint_loader:
+  module: flame.handlers.checkpoint
+  class: CheckpointLoader
+  CheckpointLoader:
+    checkpoint_path: '''checkpoint/'''
+    mode: '''test'''
+
+engine:
+  module: flame.core.engine.engine
+  class: Evaluator
+  Evaluator:
+    dataset: config['data']['test']
+    device: '''cuda'''
+
+extralibs:
+  torch: torch

@@ -1,0 +1,214 @@
+data:
+  train:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: flame.core.data.hymenoptera
+        class: HymenopteraDataset
+        HymenopteraDataset:
+          dirname: '''dataset/hymenoptera/train'''
+          classes:
+            ants: 0
+            bees: 1
+          version: '''b3'''
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
+          transforms:
+            - iaa.Fliplr(p=0.5)
+            - iaa.Flipud(p=0.5)
+            - iaa.Rot90(k=[0, 1, 2, 3], keep_size=False)
+      batch_size: 8
+      shuffle: True
+  
+  train_eval:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: flame.core.data.hymenoptera
+        class: HymenopteraDataset
+        HymenopteraDataset:
+          dirname: '''dataset/hymenoptera/train'''
+          classes:
+            ants: 0
+            bees: 1
+          version: '''b3'''
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
+      batch_size: 8
+      shuffle: False
+  
+  valid:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: flame.core.data.hymenoptera
+        class: HymenopteraDataset
+        HymenopteraDataset:
+          dirname: '''dataset/hymenoptera/valid'''
+          classes:
+            ants: 0
+            bees: 1
+          version: '''b3'''
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
+      batch_size: 8
+      shuffle: False
+
+loss:
+  module: flame.core.loss.loss
+  class: Loss
+  Loss:
+    loss_fn: torch.nn.CrossEntropyLoss()
+    output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+
+model:
+  module: flame.core.model.efficientnet
+  class: EfficientNet
+  EfficientNet:
+    version: '''b3'''
+    num_classes: 2
+
+# model:
+#   module: flame.core.model.mobilenetv2
+#   class: MobileNetV2
+#   MobileNetV2:
+#     num_classes: 2
+#     pretrained: True
+#     features_fixed: False
+
+optim:
+  module: torch.optim
+  class: Adam
+  Adam:
+    params: config['model'].parameters()
+    lr: 0.0001
+    weight_decay: 0.0005
+
+train_evaluator:
+  module: flame.handlers.metric_evaluator
+  class: MetricEvaluator
+  MetricEvaluator:
+    dataset: config['data']['train_eval']
+    device: '''cuda'''
+
+valid_evaluator:
+  module: flame.handlers.metric_evaluator
+  class: MetricEvaluator
+  MetricEvaluator:
+    dataset: config['data']['valid']
+    device: '''cuda'''
+
+metrics:
+  module: flame.handlers.metrics.metrics
+  class: Metrics
+  Metrics:
+    metrics:
+      loss:
+        module: flame.handlers.metrics.loss
+        class: Loss
+        Loss:
+          loss_fn: torch.nn.CrossEntropyLoss()
+          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+      accuracy:
+        module: ignite.metrics
+        class: Accuracy
+        Accuracy:
+          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+      precision:
+        module: ignite.metrics
+        class: Precision
+        Precision:
+          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          average: True
+      recall:
+        module: ignite.metrics
+        class: Recall
+        Recall:
+          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          average: True
+    attach_to:
+      train_evaluator: '''train'''
+      valid_evaluator: '''valid'''
+
+screenlogger:
+  module: flame.handlers.screenlogger
+  class: ScreenLogger
+  ScreenLogger:
+    eval_names:
+      - '''train''' 
+      - '''valid'''
+
+history:
+  module: flame.handlers.checkpoint
+  class: History
+
+checkpoint_loader:
+  module: flame.handlers.checkpoint
+  class: CheckpointLoader
+  CheckpointLoader:
+    checkpoint_path: ''''''
+    mode: '''train'''
+
+terminate_on_nan:
+  module: flame.handlers.terminate_on_nan
+  class: TerminateOnNan
+
+lr_scheduler:
+  module: flame.handlers.lr_scheduler
+  class: ReduceLROnPlateau
+  ReduceLROnPlateau:
+    score_name: '''loss'''
+    evaluator_name: '''valid_evaluator'''
+    mode: '''min'''
+    patience: 20
+    verbose: True
+
+early_stopping:
+  module: flame.handlers.early_stopping
+  class: EarlyStopping
+  EarlyStopping:
+    score_name: '''loss'''
+    evaluator_name: '''valid_evaluator'''
+    mode: '''min'''
+    patience: 50
+
+best_saver:
+  module: flame.handlers.checkpoint
+  class: BestSaver
+  BestSaver:
+    dirname: '''checkpoint/efficient_net'''
+    score_name: '''loss'''
+    mode: '''min'''
+    evaluator_name: '''valid_evaluator'''
+    n_saved: 1
+
+backup_saver:
+  module: flame.handlers.checkpoint
+  class: BackupSaver
+  BackupSaver:
+    modules:
+      - '''model'''
+      - '''optim'''
+      - '''backup_saver'''
+      - '''best_saver'''
+      - '''history'''
+      - '''lr_scheduler'''
+      - '''early_stopping'''
+    dirname: '''checkpoint/efficient_net'''
+    save_interval: 1
+    n_saved: 1
+
+engine:
+  module: flame.core.engine.engine
+  class: Trainer
+  Trainer:
+    dataset: config['data']['train']
+    device: '''cuda'''
+    max_epochs: 10000
+
+extralibs:
+  torch: torch
+  iaa: imgaug.augmenters
