@@ -7,7 +7,7 @@ data:
         module: flame.core.data.text_line_rotation
         class: TextLineRotationDataset
         TextLineRotationDataset:
-          datadir: '''dataset/text_line_rotation/train'''
+          datadir: '''dataset/multi_classes/text_line_rotation/train'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
@@ -39,7 +39,7 @@ data:
         module: flame.core.data.text_line_rotation
         class: TextLineRotationDataset
         TextLineRotationDataset:
-          datadir: '''dataset/text_line_rotation/train'''
+          datadir: '''dataset/multi_classes/text_line_rotation/train'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
@@ -56,7 +56,7 @@ data:
         module: flame.core.data.text_line_rotation
         class: TextLineRotationDataset
         TextLineRotationDataset:
-          datadir: '''dataset/text_line_rotation/valid'''
+          datadir: '''dataset/multi_classes/text_line_rotation/valid'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
@@ -72,7 +72,7 @@ loss:
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
-  module: flame.core.model.mobilenetv2
+  module: flame.core.model.mobilenets.mobilenetv2
   class: MobileNetV2
   MobileNetV2:
     num_classes: 1
@@ -92,14 +92,14 @@ train_evaluator:
   class: MetricEvaluator
   MetricEvaluator:
     dataset: config['data']['train_eval']
-    device: '''cuda:3'''
+    device: '''cuda'''
 
 valid_evaluator:
   module: flame.handlers.metric_evaluator
   class: MetricEvaluator
   MetricEvaluator:
     dataset: config['data']['valid']
-    device: '''cuda:3'''
+    device: '''cuda'''
 
 metrics:
   module: flame.handlers.metrics.metrics
@@ -111,7 +111,7 @@ metrics:
         class: Loss
         Loss:
           loss_fn: torch.nn.BCEWithLogitsLoss()
-          output_transform: 'lambda x: (x[0].squeeze(1), x[1].float())'
+          output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
         class: Accuracy
@@ -174,7 +174,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/'''
+    dirname: '''checkpoint/multi_classes/text_line_rotation'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -192,7 +192,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/'''
+    dirname: '''checkpoint/multi_classes/text_line_rotation'''
     save_interval: 1
     n_saved: 1
 
@@ -201,7 +201,7 @@ engine:
   class: Trainer
   Trainer:
     dataset: config['data']['train']
-    device: '''cuda:3'''
+    device: '''cuda'''
     max_epochs: 1000
 
 extralibs:
