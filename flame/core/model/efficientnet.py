@@ -55,7 +55,7 @@ class InvertedResidualBlock(nn.Module):
         reduced_dim = math.floor(in_channels / reduction)
 
         if self.expand:
-            self.expand_conv = ConvSiLU(in_channels=in_channels, out_channels=hidden_dim, kernel_size=3, stride=1, padding=1)
+            self.expand_conv = ConvSiLU(in_channels=in_channels, out_channels=hidden_dim, kernel_size=1, stride=1, padding=0)
 
         self.conv = nn.Sequential(
             ConvSiLU(in_channels=hidden_dim, out_channels=hidden_dim,
@@ -154,24 +154,14 @@ class EfficientNet(nn.Module):
 
 
 if __name__ == "__main__":
-    efficient_parameters = {
-        # (compound_coefficient, resolution, dropout_rate)
-        "b0": (0, 224, 0.2),
-        "b1": (0.5, 240, 0.2),
-        "b2": (1, 260, 0.3),
-        "b3": (2, 300, 0.3),
-        "b4": (3, 380, 0.4),
-        "b5": (4, 456, 0.4),
-        "b6": (5, 528, 0.5),
-        "b7": (6, 600, 0.5)}
+    version = "b0"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = EfficientNet(version=version, num_classes=1000).to(device)
+    _, resolution, _ = model.efficient_parameters[version]
+    x = torch.randn((4, 3, resolution, resolution)).to(device)
+    num_params = sum([param.numel() for param in model.parameters() if param.requires_grad])
 
-    def test():
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        version = "b0"
-        _, resolution_factor, _ = efficient_parameters[version]
-        num_examples, num_classes = 4, 10
-        x = torch.randn((num_examples, 3, resolution_factor, resolution_factor)).to(device)
-        model = EfficientNet(version=version, num_classes=num_classes).to(device)
-        print(model(x).shape)  # (num_examples, num_classes)
-
-    test()
+    print(f'Efficient Net Version: {version}')
+    print(f'\tInput Shape: {x.shape}')
+    print(f'\tOuput Shape: {model(x).shape}')  # (num_examples, num_classes)
+    print(f'\tNumber of Parameters: {num_params}')
