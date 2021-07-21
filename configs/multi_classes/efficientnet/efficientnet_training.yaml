@@ -11,7 +11,7 @@ data:
           classes:
             ants: 0
             bees: 1
-          version: '''b3'''
+          version: '''b0'''
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
           transforms:
@@ -33,7 +33,7 @@ data:
           classes:
             ants: 0
             bees: 1
-          version: '''b3'''
+          version: '''b0'''
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
       batch_size: 8
@@ -51,7 +51,7 @@ data:
           classes:
             ants: 0
             bees: 1
-          version: '''b3'''
+          version: '''b0'''
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
       batch_size: 8
@@ -61,14 +61,14 @@ loss:
   module: flame.core.loss.loss
   class: Loss
   Loss:
-    loss_fn: torch.nn.CrossEntropyLoss()
-    output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+    loss_fn: torch.nn.CrossEntropyLoss()  # combine `LogSoftmax` and `NLLLoss`
+    output_transform: 'lambda x: (x[0], x[1])'
 
 model:
   module: flame.core.model.efficientnet
   class: EfficientNet
   EfficientNet:
-    version: '''b3'''
+    version: '''b0'''
     num_classes: 2
 
 # model:
