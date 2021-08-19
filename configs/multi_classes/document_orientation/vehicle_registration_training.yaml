@@ -4,12 +4,15 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.orientation_detection_dataset
+        module: flame.core.data.document_orientation_dataset
         class: OrientationDataset
         OrientationDataset:
-          datadir: '''dataset/train'''
+          datadir: '''dataset/document_orientation/VEHICLE_REGISTRATION/train'''
           classes:
-            DKX_BACK_TYPE_1: 0
+            DKX_FRONT_TYPE_1: 0
+            DKX_BACK_TYPE_1: 1
+            DKX_FRONT_TYPE_5: 2
+            DKX_BACK_TYPE_5: 3
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
@@ -37,12 +40,15 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.orientation_detection_dataset
+        module: flame.core.data.document_orientation_dataset
         class: OrientationDataset
         OrientationDataset:
-          datadir: '''dataset/train'''
+          datadir: '''dataset/document_orientation/VEHICLE_REGISTRATION/train'''
           classes:
-            DKX_BACK_TYPE_1: 0
+            DKX_FRONT_TYPE_1: 0
+            DKX_BACK_TYPE_1: 1
+            DKX_FRONT_TYPE_5: 2
+            DKX_BACK_TYPE_5: 3
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
@@ -54,12 +60,15 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.orientation_detection_dataset
+        module: flame.core.data.document_orientation_dataset
         class: OrientationDataset
         OrientationDataset:
-          datadir: '''dataset/valid'''
+          datadir: '''dataset/document_orientation/VEHICLE_REGISTRATION/valid'''
           classes:
-            DKX_BACK_TYPE_1: 0
+            DKX_FRONT_TYPE_1: 0
+            DKX_BACK_TYPE_1: 1
+            DKX_FRONT_TYPE_5: 2
+            DKX_BACK_TYPE_5: 3
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256

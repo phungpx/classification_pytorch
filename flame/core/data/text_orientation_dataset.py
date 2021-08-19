@@ -33,6 +33,8 @@ class TextLineRotationDataset(Dataset):
         self.ratio_crop = iaa.CropToAspectRatio(image_ratio, position='right-bottom')  # ensure ratio (w / h) for text line, crop width of too long text line.
         self.ratio_pad = iaa.PadToAspectRatio(image_ratio, position='right-bottom')  # ensure ratio (w / h) for text line, padding for too short text line.
 
+        print(f'- {Path(datadir).stem}: {len(self.image_paths)}')
+
     def __len__(self):
         if self.dataset_len is None:
             return len(self.image_paths)

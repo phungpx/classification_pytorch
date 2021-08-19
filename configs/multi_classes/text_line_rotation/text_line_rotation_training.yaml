@@ -28,7 +28,7 @@ data:
             - iaa.Dropout()
           max_transform: 5
           dataset_len: None
-      batch_size: 16
+      batch_size: 64
       shuffle: True
 
   train_eval:
@@ -45,7 +45,7 @@ data:
           image_ratio: 20
           inner_size: 48
           dataset_len: None
-      batch_size: 16
+      batch_size: 64
       shuffle: False
 
   valid:
@@ -61,7 +61,7 @@ data:
           image_height: 32
           image_ratio: 20
           inner_size: 48
-      batch_size: 16
+      batch_size: 64
       shuffle: False
 
 loss:
@@ -143,8 +143,8 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/2012051806/best_model_96_loss=-0.0111.pt'''
-    mode: '''retrain'''
+    checkpoint_path: ''''''
+    mode: '''train'''
 
 terminate_on_nan:
   module: flame.handlers.terminate_on_nan
