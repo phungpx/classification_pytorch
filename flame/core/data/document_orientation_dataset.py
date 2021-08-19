@@ -26,6 +26,8 @@ class OrientationDataset(Dataset):
         self.image_paths = [(image_path, class_) for path_gen, class_ in self.image_paths for image_path in path_gen]
         self.image_paths = [(image_path, i, class_) for image_path, class_ in self.image_paths for i in range(4)]
 
+        print(f'- {datadir.stem}: {len(self.image_paths)}')
+
     def __len__(self):
         return len(self.image_paths)
 
