@@ -8,25 +8,27 @@ from torch.utils.data import Dataset
 
 
 class OrientationDataset(Dataset):
-    def __init__(self, datadir, classes, image_pattern, image_size, inner_size, transforms=None, max_transforms=5, opencv_threads=4):
+    def __init__(self, datadirs, classes, image_pattern, image_size, inner_size, transforms=None, max_transforms=5, opencv_threads=4):
         super(OrientationDataset, self).__init__()
         cv2.setNumThreads(opencv_threads)
-        datadir = Path(datadir)
         self.classes = classes
         self.image_size = image_size
         self.inner_size = inner_size
         self.transforms = transforms if transforms else []
         self.max_transforms = min(max_transforms, len(self.transforms))
 
-        for class_ in classes:
-            if not datadir.joinpath(class_).exists():
-                raise FileNotFoundError(f'Folder {class_} does not exist.')
+        for datadir in datadirs:
+            for class_ in classes:
+                if not Path(datadir).joinpath(class_).exists():
+                    raise FileNotFoundError(f'Folder {class_} does not exist.')
 
-        self.image_paths = [(datadir.joinpath(class_).glob(image_pattern), class_) for class_ in classes]
+        self.image_paths = []
+        for datadir in datadirs:
+            self.image_paths.extend([(Path(datadir).joinpath(class_).glob(image_pattern), class_) for class_ in classes])
         self.image_paths = [(image_path, class_) for path_gen, class_ in self.image_paths for image_path in path_gen]
         self.image_paths = [(image_path, i, class_) for image_path, class_ in self.image_paths for i in range(4)]
 
-        print(f'- {datadir.stem}: {len(self.image_paths)}')
+        print(f'- {Path(datadirs[0]).stem}: {len(self.image_paths)}')
 
     def __len__(self):
         return len(self.image_paths)
