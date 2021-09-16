@@ -87,11 +87,13 @@ data:
       shuffle: False
 
 loss:
-  module: flame.core.loss.weighted_supclasses_crossentropy
-  class: WeightedSupclassesCrossEntropy
-  WeightedSupclassesCrossEntropy:
-    weight: 'torch.tensor([1.]).to("cuda")'
-    output_transform: 'lambda x: (x[0], x[1], x[2])'
+  module: flame.core.loss.loss
+  class: Loss
+  Loss:
+    loss_fn:
+      module: torch.nn
+      class: CrossEntropyLoss
+    output_transform: 'lambda x: (x[0], x[1])'
 
 model:
   module: flame.core.model.mobilenets.mobilenetv3_small
@@ -133,11 +135,9 @@ metrics:
         class: Loss
         Loss:
           loss_fn:
-            module: flame.core.loss.weighted_supclasses_crossentropy
-            class: WeightedSupclassesCrossEntropy
-            WeightedSupclassesCrossEntropy:
-              weight: 'torch.tensor([1.]).to("cuda")'
-          output_transform: 'lambda x: (x[0], x[1], x[2])'
+            module: torch.nn
+            class: CrossEntropyLoss
+          output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
         class: Accuracy
