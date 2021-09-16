@@ -17,11 +17,26 @@ class SiLU(nn.Module):
 
 
 class ConvSiLU(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, groups=1):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size,
+        stride,
+        padding,
+        groups=1
+    ):
         super(ConvSiLU, self).__init__()
         self.conv_silu = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
-                      kernel_size=kernel_size, stride=stride, padding=padding, groups=groups, bias=False),
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=kernel_size,
+                stride=stride,
+                padding=padding,
+                groups=groups,
+                bias=False
+            ),
             nn.BatchNorm2d(num_features=out_channels),
             SiLU(),)
 
@@ -30,13 +45,25 @@ class ConvSiLU(nn.Module):
 
 
 class SqueezeExcitation(nn.Module):
-    def __init__(self, in_channels, reduced_dim):
+    def __init__(
+        self,
+        in_channels,
+        reduced_dim
+    ):
         super(SqueezeExcitation, self).__init__()
         self.SEnet = nn.Sequential(
             nn.AdaptiveAvgPool2d(output_size=1),  # C x H x W -> C x 1 x 1
-            nn.Conv2d(in_channels=in_channels, out_channels=reduced_dim, kernel_size=1),  # C x 1 x 1 -> C/r x 1 x 1
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=reduced_dim,
+                kernel_size=1
+            ),  # C x 1 x 1 -> C/r x 1 x 1
             SiLU(),  # in original using ReLU
-            nn.Conv2d(in_channels=reduced_dim, out_channels=in_channels, kernel_size=1),  # C/r x 1 x 1 -> C x 1 x 1
+            nn.Conv2d(
+                in_channels=reduced_dim,
+                out_channels=in_channels,
+                kernel_size=1
+            ),  # C/r x 1 x 1 -> C x 1 x 1
             nn.Sigmoid())
 
     def forward(self, x):
@@ -44,9 +71,17 @@ class SqueezeExcitation(nn.Module):
 
 
 class InvertedResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, expand_ratio,
-                 reduction=4,  # r in squeeze-and-excitation optimization
-                 survival_probability=0.8,):  # survival_probability of stochastic depth
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size,
+        stride,
+        padding,
+        expand_ratio,
+        reduction=4,  # r in squeeze-and-excitation optimization
+        survival_probability=0.8,  # survival_probability of stochastic depth
+    ):
         super(InvertedResidualBlock, self).__init__()
         self.survival_probability = survival_probability
         self.use_residual = (in_channels == out_channels) and (stride == 1)
@@ -55,14 +90,37 @@ class InvertedResidualBlock(nn.Module):
         reduced_dim = math.floor(in_channels / reduction)
 
         if self.expand:
-            self.expand_conv = ConvSiLU(in_channels=in_channels, out_channels=hidden_dim, kernel_size=1, stride=1, padding=0)
+            self.expand_conv = ConvSiLU(
+                in_channels=in_channels,
+                out_channels=hidden_dim,
+                kernel_size=1,
+                stride=1,
+                padding=0
+            )
 
         self.conv = nn.Sequential(
-            ConvSiLU(in_channels=hidden_dim, out_channels=hidden_dim,
-                     kernel_size=kernel_size, stride=stride, padding=padding, groups=hidden_dim),
-            SqueezeExcitation(in_channels=hidden_dim, reduced_dim=reduced_dim),
-            nn.Conv2d(in_channels=hidden_dim, out_channels=out_channels, kernel_size=1, bias=False),
-            nn.BatchNorm2d(num_features=out_channels))
+            ConvSiLU(
+                in_channels=hidden_dim,
+                out_channels=hidden_dim,
+                kernel_size=kernel_size,
+                stride=stride,
+                padding=padding,
+                groups=hidden_dim,
+            ),
+            SqueezeExcitation(
+                in_channels=hidden_dim,
+                reduced_dim=reduced_dim,
+            ),
+            nn.Conv2d(
+                in_channels=hidden_dim,
+                out_channels=out_channels,
+                kernel_size=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(
+                num_features=out_channels,
+            )
+        )
 
     def stochastic_depth(self, x):
         if not self.training:
@@ -95,19 +153,19 @@ class EfficientNet(nn.Module):
 
         width_factor, depth_factor, dropout_rate = self._calculate_factors(version)
 
-        self.baseline_params = [['Conv', 32, 2, 3, 1],  # channels=32, stride=2, kernel_size=3, padding=1
-                                ['MBConv', 1, 16, 1, 1, 3],  # expand_ratio=1, channels=16, layers=1, stride=1, kernel_size=3
-                                ['MBConv', 6, 24, 2, 2, 3],  # expand_ratio=6, channels=24, layers=2, stride=2, kernel_size=3
-                                ['MBConv', 6, 40, 2, 2, 5],  # expand_ratio=6, channels=40, layers=2, stride=2, kernel_size=5
-                                ['MBConv', 6, 80, 3, 2, 3],  # expand_ratio=6, channels=80, layers=3, stride=2, kernel_size=3
+        self.baseline_params = [['Conv', 32, 2, 3, 1],        # channels=32, stride=2, kernel_size=3, padding=1
+                                ['MBConv', 1, 16, 1, 1, 3],   # expand_ratio=1, channels=16, layers=1, stride=1, kernel_size=3
+                                ['MBConv', 6, 24, 2, 2, 3],   # expand_ratio=6, channels=24, layers=2, stride=2, kernel_size=3
+                                ['MBConv', 6, 40, 2, 2, 5],   # expand_ratio=6, channels=40, layers=2, stride=2, kernel_size=5
+                                ['MBConv', 6, 80, 3, 2, 3],   # expand_ratio=6, channels=80, layers=3, stride=2, kernel_size=3
                                 ['MBConv', 6, 112, 3, 1, 5],  # expand_ratio=6, channels=112, layers=3, stride=1, kernel_size=5
                                 ['MBConv', 6, 192, 4, 2, 5],  # expand_ratio=6, channels=192, layers=4, stride=2, kernel_size=5
                                 ['MBConv', 6, 320, 1, 1, 3],  # expand_ratio=6, channels=320, layers=1, stride=1, kernel_size=3
-                                ['Conv', 1280, 1, 1, 0],  # channels=1280, stride=1, kernel_size=1, padding=0
-                                ['AvgPool', 1],  # output_size=1
-                                ['Flatten', 1, -1],  # start_dim=1, end_dim=-1
-                                ['Dropout', dropout_rate],  # dropout_rate=dropout_rate
-                                ['Linear', num_classes]]  # out_features=num_classes
+                                ['Conv', 1280, 1, 1, 0],      # channels=1280, stride=1, kernel_size=1, padding=0
+                                ['AvgPool', 1],               # output_size=1
+                                ['Flatten', 1, -1],           # start_dim=1, end_dim=-1
+                                ['Dropout', dropout_rate],    # dropout_rate=dropout_rate
+                                ['Linear', num_classes]]      # out_features=num_classes
 
         self.features = self._create_network(width_factor=width_factor, depth_factor=depth_factor)
 
@@ -134,8 +192,12 @@ class EfficientNet(nn.Module):
                 for layer in range(repeats):
                     padding = kernel_size // 2
                     stride = stride if layer == 0 else 1
-                    features.append(InvertedResidualBlock(in_channels=in_channels, out_channels=channels,
-                                                          expand_ratio=expand_ratio, stride=stride, kernel_size=kernel_size, padding=padding))
+                    features.append(InvertedResidualBlock(in_channels=in_channels,
+                                                          out_channels=channels,
+                                                          expand_ratio=expand_ratio,
+                                                          stride=stride,
+                                                          kernel_size=kernel_size,
+                                                          padding=padding))
                     in_channels = channels
             elif params[0] == 'AvgPool':
                 features.append(nn.AdaptiveAvgPool2d(output_size=params[1]))

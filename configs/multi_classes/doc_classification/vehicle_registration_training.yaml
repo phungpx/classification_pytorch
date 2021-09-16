@@ -7,7 +7,8 @@ data:
         module: flame.core.data.doc_classification_dataset
         class: DocClassificationDataset
         DocClassificationDataset:
-          datadir: '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/train'''
+          datadirs:
+            - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/train'''
           classes:
             DKX_TYPE_1: 0
             DKX_BACK_TYPE_1: 1
@@ -47,7 +48,8 @@ data:
         module: flame.core.data.doc_classification_dataset
         class: DocClassificationDataset
         DocClassificationDataset:
-          datadir: '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/train'''
+          datadirs:
+            - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/train'''
           classes:
             DKX_TYPE_1: 0
             DKX_BACK_TYPE_1: 1
@@ -69,7 +71,8 @@ data:
         module: flame.core.data.doc_classification_dataset
         class: DocClassificationDataset
         DocClassificationDataset:
-          datadir: '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/valid'''
+          datadirs:
+            - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/valid'''
           classes:
             DKX_TYPE_1: 0
             DKX_BACK_TYPE_1: 1

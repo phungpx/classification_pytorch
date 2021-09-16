@@ -32,6 +32,9 @@ data:
             - 'iaa.ChangeColorTemperature()'
             - 'iaa.Clouds()'
       batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: True
 
   train_eval:
@@ -51,6 +54,9 @@ data:
           image_size: (224, 224)
           inner_size: 256
       batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: False
 
   valid:
@@ -69,6 +75,9 @@ data:
           image_size: (224, 224)
           inner_size: 256
       batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: False
 
 loss:
@@ -83,8 +92,8 @@ model:
   class: MobileNetV3Small
   MobileNetV3Small:
     num_classes: 4
-    pretrained: True
-    features_fixed: False
+    pretrained: False
+    features_fixed: True
 
 optim:
   module: torch.optim
@@ -160,8 +169,8 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: ''''''
-    mode: '''train'''
+    checkpoint_path: '''checkpoint/VEHICLE_REGISTRATION/mobilenetv3_small/2108191709/best_model_60_loss=-0.0000.pt'''
+    mode: '''retrain'''
 
 terminate_on_nan:
   module: flame.handlers.terminate_on_nan

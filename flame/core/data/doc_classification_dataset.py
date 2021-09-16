@@ -8,10 +8,21 @@ from torch.utils.data import Dataset
 
 
 class DocClassificationDataset(Dataset):
-    def __init__(self, datadir, classes, image_patterns, image_size, inner_size, required_transforms=None, optional_transforms=None, max_transforms=5, opencv_threads=4):
+    def __init__(
+        self,
+        datadirs,
+        classes,
+        image_patterns,
+        image_size,
+        inner_size,
+        required_transforms=None,
+        optional_transforms=None,
+        max_transforms=5,
+        opencv_threads=4
+    ):
         super(DocClassificationDataset, self).__init__()
         cv2.setNumThreads(opencv_threads)
-        datadir = Path(datadir)
+        # datadir = Path(datadir)
         self.classes = classes
         self.image_size = image_size
         self.inner_size = inner_size
