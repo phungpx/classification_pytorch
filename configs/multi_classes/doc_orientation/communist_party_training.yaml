@@ -12,6 +12,8 @@ data:
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/test'''
           classes:
             CARD_BACK: 0
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
@@ -50,6 +52,8 @@ data:
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/test'''
           classes:
             CARD_BACK: 0
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
@@ -71,6 +75,8 @@ data:
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/valid'''
           classes:
             CARD_BACK: 0
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
@@ -92,8 +98,8 @@ model:
   class: MobileNetV3Small
   MobileNetV3Small:
     num_classes: 4
-    pretrained: False
-    features_fixed: True
+    pretrained: True
+    features_fixed: False
 
 optim:
   module: torch.optim
@@ -169,8 +175,8 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/doc_orientation/VEHICLE_REGISTRATION/mobilenetv3_small/2108191709/best_model_60_loss=-0.0000.pt'''
-    mode: '''retrain'''
+    checkpoint_path: ''''''
+    mode: '''train'''
 
 terminate_on_nan:
   module: flame.handlers.terminate_on_nan

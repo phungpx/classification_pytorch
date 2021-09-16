@@ -4,17 +4,20 @@ import random
 import numpy as np
 
 from pathlib import Path
+from typing import List, Tuple, Dict, Optional
 from torch.utils.data import Dataset
 
 
 class DocOrientationDataset(Dataset):
     def __init__(
         self,
-        data_dirs,
-        classes,
-        image_pattern,
-        image_size,
-        inner_size,
+        data_dirs: List[str],
+        classes: Dict[str, int],
+        image_pattern: str,
+        image_size: Tuple[int, int],
+        inner_size: int,
+        mean: Optional[Tuple[float, float, float]] = None,
+        std: Optional[Tuple[float, float, float]] = None,
         transforms=None,
         max_transforms=5,
         opencv_threads=4
@@ -26,6 +29,9 @@ class DocOrientationDataset(Dataset):
         self.inner_size = inner_size
         self.transforms = transforms if transforms else []
         self.max_transforms = min(max_transforms, len(self.transforms))
+
+        self.mean = torch.tensor(mean, dtype=torch.float).view(3, 1, 1) if mean is not None else None
+        self.std = torch.tensor(std, dtype=torch.float).view(3, 1, 1) if std is not None else None
 
         for data_dir in data_dirs:
             for class_name in classes:
@@ -53,6 +59,9 @@ class DocOrientationDataset(Dataset):
         sample = cv2.imread(str(image_path))
         sample = self._resize(sample, self.inner_size)
 
+        if (self.mean is not None) and (self.std is not None):
+            sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
+
         for transform in random.sample(self.transforms, k=random.randint(0, self.max_transforms)):
             sample = transform(image=sample)
 
@@ -61,11 +70,16 @@ class DocOrientationDataset(Dataset):
         sample = np.ascontiguousarray(sample)
         sample = torch.from_numpy(sample)
         sample = sample.permute(2, 0, 1).to(torch.float)
-        sample = (sample - sample.mean()) / sample.std()
+
+        if (self.mean is not None) and (self.std is not None):
+            sample = (sample.div(255.) - self.mean) / self.std
+        else:
+            sample = (sample - sample.mean()) / sample.std()
 
         return sample, target, supclass_idx, str(image_path)
 
     def _resize(self, image, size):
         ratio = size / min(image.shape[:2])
         image = cv2.resize(image, dsize=(0, 0), fx=ratio, fy=ratio)
+
         return image
