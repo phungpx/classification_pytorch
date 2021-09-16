@@ -33,7 +33,7 @@ data:
             - 'iaa.Grayscale(alpha=(0, 1))'
             - 'iaa.ChangeColorTemperature()'
             - 'iaa.Clouds()'
-      batch_size: 64
+      batch_size: 8
       pin_memory: True
       num_workers: 12
       drop_last: False
@@ -57,7 +57,7 @@ data:
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 64
+      batch_size: 8
       pin_memory: True
       num_workers: 12
       drop_last: False
@@ -80,7 +80,7 @@ data:
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 64
+      batch_size: 8
       pin_memory: True
       num_workers: 12
       drop_last: False
