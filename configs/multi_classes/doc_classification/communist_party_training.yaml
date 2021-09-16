@@ -7,8 +7,9 @@ data:
         module: flame.core.data.doc_classification_dataset
         class: DocClassificationDataset
         DocClassificationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/train'''
+            - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/test'''
           classes:
             CARD_BACK: 0
             OTHERS: 1
@@ -26,17 +27,17 @@ data:
             - 'iaa.AdditiveGaussianNoise(loc=(-5, 5), scale=10, per_channel=True)'
             - 'iaa.Dropout(p=(0, 0.2))'
             - 'iaa.GammaContrast()'
-            - 'iaa.JpegCompression(compression=(0, 50))'
+            # - 'iaa.JpegCompression(compression=(0, 50))'
             - 'iaa.GaussianBlur(sigma=(0, 2))'
             - 'iaa.MotionBlur()'
-            - 'iaa.AddToHueAndSaturation(value=(-50, 50))'
+            # - 'iaa.AddToHueAndSaturation(value=(-50, 50))'
             - 'iaa.PerspectiveTransform(scale=(0, 0.1))'
             - 'iaa.Pad(percent=(0, 0.1))'
             - 'iaa.Crop(percent=(0, 0.2))'
             - 'iaa.Grayscale(alpha=(0, 1))'
-            - 'iaa.ChangeColorTemperature()'
+            # - 'iaa.ChangeColorTemperature()'
             - 'iaa.Clouds()'
-      batch_size: 4
+      batch_size: 64
       shuffle: True
 
   train_eval:
@@ -47,8 +48,9 @@ data:
         module: flame.core.data.doc_classification_dataset
         class: DocClassificationDataset
         DocClassificationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/train'''
+            - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/test'''
           classes:
             CARD_BACK: 0
             OTHERS: 1
@@ -58,7 +60,7 @@ data:
             - '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 4
+      batch_size: 64
       shuffle: False
 
   valid:
@@ -69,7 +71,7 @@ data:
         module: flame.core.data.doc_classification_dataset
         class: DocClassificationDataset
         DocClassificationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/valid'''
           classes:
             CARD_BACK: 0
@@ -80,7 +82,7 @@ data:
             - '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 4
+      batch_size: 64
       shuffle: False
 
 loss:

@@ -59,6 +59,9 @@ class DocClassificationDataset(Dataset):
         sample = cv2.imread(str(image_path))
         sample = self._resize(sample, self.inner_size)
 
+        if (self.mean is not None) and (self.std is not None):
+            sample = cv2.cvtColor(sample, cv2.COLOR_BGR2RGB)
+
         for transform in random.sample(self.required_transforms, k=len(self.required_transforms)):
             sample = transform(image=sample)
         for transform in random.sample(self.optional_transforms, k=random.randint(0, self.max_transforms)):
