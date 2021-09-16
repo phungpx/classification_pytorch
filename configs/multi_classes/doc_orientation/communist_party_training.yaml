@@ -169,7 +169,7 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/VEHICLE_REGISTRATION/mobilenetv3_small/2108191709/best_model_60_loss=-0.0000.pt'''
+    checkpoint_path: '''checkpoint/doc_orientation/VEHICLE_REGISTRATION/mobilenetv3_small/2108191709/best_model_60_loss=-0.0000.pt'''
     mode: '''retrain'''
 
 terminate_on_nan:
@@ -199,7 +199,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/COMMUNIST_PARTY/mobilenetv3_small'''
+    dirname: '''checkpoint/doc_orientation/COMMUNIST_PARTY/mobilenetv3_small'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -217,7 +217,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/COMMUNIST_PARTY/mobilenetv3_small'''
+    dirname: '''checkpoint/doc_orientation/COMMUNIST_PARTY/mobilenetv3_small'''
     save_interval: 1
     n_saved: 1
 

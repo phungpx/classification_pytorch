@@ -74,7 +74,7 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/2012051809/best_model_57_loss=-0.0000.pt'''
+    checkpoint_path: '''checkpoint/doc_orientation/VEHICLE_REGISTRATION/mobilenetv3_small/2012051809/best_model_57_loss=-0.0000.pt'''
     mode: '''test'''
 
 comparer:

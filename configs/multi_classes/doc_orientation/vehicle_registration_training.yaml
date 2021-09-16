@@ -197,7 +197,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/VEHICLE_REGISTRATION/mobilenetv3_small'''
+    dirname: '''checkpoint/doc_orientation/VEHICLE_REGISTRATION/mobilenetv3_small'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -215,7 +215,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/VEHICLE_REGISTRATION/mobilenetv3_small'''
+    dirname: '''checkpoint/doc_orientation/VEHICLE_REGISTRATION/mobilenetv3_small'''
     save_interval: 1
     n_saved: 1
 
