@@ -4,21 +4,24 @@ import random
 import numpy as np
 
 from pathlib import Path
+from typing import List, Tuple, Dict, Optional
 from torch.utils.data import Dataset
 
 
 class DocClassificationDataset(Dataset):
     def __init__(
         self,
-        data_dirs,
-        classes,
-        image_patterns,
-        image_size,
-        inner_size,
-        required_transforms=None,
-        optional_transforms=None,
-        max_transforms=5,
-        opencv_threads=4
+        data_dirs: List[str],
+        classes: Dict[str, int],
+        image_patterns: List[str],
+        image_size: Tuple[int, int],
+        inner_size: int,
+        mean: Optional[Tuple[float, float, float]] = None,
+        std: Optional[Tuple[float, float, float]] = None,
+        required_transforms: Optional[list] = None,
+        optional_transforms: Optional[list] = None,
+        max_transforms: int = 5,
+        opencv_threads: int = 4
     ):
         super(DocClassificationDataset, self).__init__()
         cv2.setNumThreads(opencv_threads)
@@ -28,6 +31,9 @@ class DocClassificationDataset(Dataset):
         self.required_transforms = required_transforms if required_transforms else []
         self.optional_transforms = optional_transforms if optional_transforms else []
         self.max_transforms = min(max_transforms, len(self.optional_transforms))
+
+        self.mean = torch.tensor(mean, dtype=torch.float).view(3, 1, 1) if mean is not None else None
+        self.std = torch.tensor(std, dtype=torch.float).view(3, 1, 1) if std is not None else None
 
         for data_dir in data_dirs:
             for class_name in classes:
@@ -63,10 +69,10 @@ class DocClassificationDataset(Dataset):
         sample = torch.from_numpy(sample)
         sample = sample.permute(2, 0, 1).to(torch.float)
 
-        if (sample == sample.mean()).all():
-            sample = torch.zeros_like(sample)
+        if (self.mean is not None) and (self.std is not None):
+            sample = (sample.div(255.) - self.mean) / self.std
         else:
-            sample = (sample - sample.mean()) / sample.std()
+            sample = (sample - sample.mean()) / sample.std() if not (sample == sample.mean()).all() else torch.zeros_like(sample)
 
         target = self.classes[class_name]
 

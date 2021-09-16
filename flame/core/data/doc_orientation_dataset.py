@@ -18,9 +18,9 @@ class DocOrientationDataset(Dataset):
         inner_size: int,
         mean: Optional[Tuple[float, float, float]] = None,
         std: Optional[Tuple[float, float, float]] = None,
-        transforms=None,
-        max_transforms=5,
-        opencv_threads=4
+        transforms: Optional[list] = None,
+        max_transforms: int = 5,
+        opencv_threads: int = 4
     ):
         super(DocOrientationDataset, self).__init__()
         cv2.setNumThreads(opencv_threads)
