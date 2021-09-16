@@ -91,7 +91,7 @@ loss:
       module: torch.nn
       class: CrossEntropyLoss
       CrossEntropyLoss:
-        weight: "torch.tensor([0.20668592, 0.19846735, 0.20901821, 0.20124389, 0.18458463]).to('cuda')"
+        weight: "torch.tensor([0.9881475, 0.0118525]).to('cuda')"
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
@@ -137,7 +137,7 @@ metrics:
             module: torch.nn
             class: CrossEntropyLoss
             CrossEntropyLoss:
-              weight: "torch.tensor([0.20668592, 0.19846735, 0.20901821, 0.20124389, 0.18458463]).to('cuda')"
+              weight: "torch.tensor([0.9881475, 0.0118525]).to('cuda')"
           output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
