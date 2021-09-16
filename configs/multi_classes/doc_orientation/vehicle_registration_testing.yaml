@@ -7,7 +7,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/doc_orientation/VEHICLE_REGISTRATION/test'''
           classes:
             DKX_FRONT_TYPE_1: 0

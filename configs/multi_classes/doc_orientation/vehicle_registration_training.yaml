@@ -7,7 +7,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/train'''
           classes:
             DKX_TYPE_1: 0
@@ -44,7 +44,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/train'''
           classes:
             DKX_TYPE_1: 0
@@ -65,7 +65,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/valid'''
           classes:
             DKX_TYPE_1: 0

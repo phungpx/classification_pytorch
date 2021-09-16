@@ -8,7 +8,17 @@ from torch.utils.data import Dataset
 
 
 class DocOrientationDataset(Dataset):
-    def __init__(self, datadirs, classes, image_pattern, image_size, inner_size, transforms=None, max_transforms=5, opencv_threads=4):
+    def __init__(
+        self,
+        data_dirs,
+        classes,
+        image_pattern,
+        image_size,
+        inner_size,
+        transforms=None,
+        max_transforms=5,
+        opencv_threads=4
+    ):
         super(DocOrientationDataset, self).__init__()
         cv2.setNumThreads(opencv_threads)
         self.classes = classes
@@ -17,26 +27,28 @@ class DocOrientationDataset(Dataset):
         self.transforms = transforms if transforms else []
         self.max_transforms = min(max_transforms, len(self.transforms))
 
-        for datadir in datadirs:
-            for class_ in classes:
-                if not Path(datadir).joinpath(class_).exists():
-                    raise FileNotFoundError(f'Folder {class_} does not exist.')
+        for data_dir in data_dirs:
+            for class_name in classes:
+                if not Path(data_dir).joinpath(class_name).exists():
+                    raise FileNotFoundError(f'Folder {class_name} does not exist.')
 
         self.image_paths = []
-        for datadir in datadirs:
-            self.image_paths.extend([(Path(datadir).joinpath(class_).glob(image_pattern), class_) for class_ in classes])
-        self.image_paths = [(image_path, class_) for path_gen, class_ in self.image_paths for image_path in path_gen]
-        self.image_paths = [(image_path, i, class_) for image_path, class_ in self.image_paths for i in range(4)]
+        for data_dir in data_dirs:
+            for class_name in classes:
+                self.image_paths.append((Path(data_dir).joinpath(class_name).glob(image_pattern), class_name))
 
-        print(f'- {Path(datadirs[0]).stem}: {len(self.image_paths)}')
+        self.image_paths = [(path, name) for paths, name in self.image_paths for path in paths]
+        self.image_paths = [(image_path, i, class_name) for image_path, class_name in self.image_paths for i in range(4)]
+
+        print(f"{', '.join([Path(data_dir).stem for data_dir in data_dirs])} - {len(self.image_paths)}")
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        image_path, target, class_ = self.image_paths[idx]
+        image_path, target, class_name = self.image_paths[idx]
 
-        supclass_idx = self.classes[class_]
+        supclass_idx = self.classes[class_name]
 
         sample = cv2.imread(str(image_path))
         sample = self._resize(sample, self.inner_size)
@@ -50,6 +62,7 @@ class DocOrientationDataset(Dataset):
         sample = torch.from_numpy(sample)
         sample = sample.permute(2, 0, 1).to(torch.float)
         sample = (sample - sample.mean()) / sample.std()
+
         return sample, target, supclass_idx, str(image_path)
 
     def _resize(self, image, size):

@@ -10,7 +10,7 @@ from torch.utils.data import Dataset
 class DocClassificationDataset(Dataset):
     def __init__(
         self,
-        datadirs,
+        data_dirs,
         classes,
         image_patterns,
         image_size,
@@ -22,7 +22,6 @@ class DocClassificationDataset(Dataset):
     ):
         super(DocClassificationDataset, self).__init__()
         cv2.setNumThreads(opencv_threads)
-        # datadir = Path(datadir)
         self.classes = classes
         self.image_size = image_size
         self.inner_size = inner_size
@@ -30,18 +29,26 @@ class DocClassificationDataset(Dataset):
         self.optional_transforms = optional_transforms if optional_transforms else []
         self.max_transforms = min(max_transforms, len(self.optional_transforms))
 
-        for class_ in classes:
-            if not datadir.joinpath(class_).exists():
-                raise FileNotFoundError(f'Folder {class_} does not exist.')
+        for data_dir in data_dirs:
+            for class_name in classes:
+                if not Path(data_dir).joinpath(class_name).exists():
+                    raise FileNotFoundError(f'Folder {class_name} does not exist.')
 
-        self.image_paths = [(datadir.joinpath(class_).glob(image_pattern), class_) for class_ in classes for image_pattern in image_patterns]
-        self.image_paths = [(image_path, class_) for path_gen, class_ in self.image_paths for image_path in path_gen]
+        self.image_paths = []
+        for data_dir in data_dirs:
+            for class_name in classes:
+                for image_pattern in image_patterns:
+                    self.image_paths.append((Path(data_dir).joinpath(class_name).glob(image_pattern), class_name))
+
+        self.image_paths = [(path, name) for paths, name in self.image_paths for path in paths]
+
+        print(f"{', '.join([Path(data_dir).stem for data_dir in data_dirs])} - {len(self.image_paths)}")
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        image_path, class_ = self.image_paths[idx]
+        image_path, class_name = self.image_paths[idx]
 
         sample = cv2.imread(str(image_path))
         sample = self._resize(sample, self.inner_size)
@@ -61,10 +68,12 @@ class DocClassificationDataset(Dataset):
         else:
             sample = (sample - sample.mean()) / sample.std()
 
-        target = self.classes[class_]
+        target = self.classes[class_name]
+
         return sample, target, str(image_path)
 
     def _resize(self, image, size):
         ratio = size / min(image.shape[:2])
         image = cv2.resize(image, dsize=(0, 0), fx=ratio, fy=ratio)
+
         return image

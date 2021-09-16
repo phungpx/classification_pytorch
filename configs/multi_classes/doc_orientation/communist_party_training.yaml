@@ -7,7 +7,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/train'''
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/test'''
           classes:
@@ -45,7 +45,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/train'''
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/test'''
           classes:
@@ -67,7 +67,7 @@ data:
         module: flame.core.data.doc_orientation_dataset
         class: DocOrientationDataset
         DocOrientationDataset:
-          datadirs:
+          data_dirs:
             - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/valid'''
           classes:
             CARD_BACK: 0
