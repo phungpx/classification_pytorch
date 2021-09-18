@@ -9,7 +9,6 @@ data:
         DocClassificationDataset:
           data_dirs:
             - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/train'''
-            - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/test'''
           classes:
             CARD_BACK: 0
             OTHERS: 1
@@ -50,7 +49,6 @@ data:
         DocClassificationDataset:
           data_dirs:
             - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/train'''
-            - '''dataset/multi_classes/doc_classification/COMMUNIST_PARTY/test'''
           classes:
             CARD_BACK: 0
             OTHERS: 1
@@ -93,7 +91,7 @@ loss:
       module: torch.nn
       class: CrossEntropyLoss
       CrossEntropyLoss:
-        weight: "torch.tensor([0.9881475, 0.0118525]).to('cuda')"
+        weight: "torch.tensor([0.60910031, 0.39089969]).to('cuda')"
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
@@ -139,7 +137,7 @@ metrics:
             module: torch.nn
             class: CrossEntropyLoss
             CrossEntropyLoss:
-              weight: "torch.tensor([0.9881475, 0.0118525]).to('cuda')"
+              weight: "torch.tensor([0.60910031, 0.39089969]).to('cuda')"
           output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
