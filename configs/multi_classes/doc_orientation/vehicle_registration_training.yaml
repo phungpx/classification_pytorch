@@ -10,10 +10,14 @@ data:
           data_dirs:
             - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/train'''
           classes:
-            DKX_TYPE_1: 0
-            DKX_BACK_TYPE_1: 1
-            DKX_FRONT_TYPE_5: 2
-            DKX_BACK_TYPE_5: 3
+            DKX_BACK_TYPE_1: 0
+            DKX_TYPE_1: 1
+            DKX_BACK_TYPE_2: 2
+            DKX_TYPE_2: 3
+            DKX_BACK_TYPE_3: 4
+            DKX_TYPE_3: 5
+            DKX_BACK_TYPE_5: 6
+            DKX_FRONT_TYPE_5: 7
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
@@ -33,8 +37,11 @@ data:
             - 'iaa.Grayscale(alpha=(0, 1))'
             - 'iaa.ChangeColorTemperature()'
             - 'iaa.Clouds()'
-      batch_size: 64
+      batch_size: 128
       shuffle: True
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
 
   train_eval:
     module: torch.utils.data
@@ -47,15 +54,22 @@ data:
           data_dirs:
             - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/train'''
           classes:
-            DKX_TYPE_1: 0
-            DKX_BACK_TYPE_1: 1
-            DKX_FRONT_TYPE_5: 2
-            DKX_BACK_TYPE_5: 3
+            DKX_BACK_TYPE_1: 0
+            DKX_TYPE_1: 1
+            DKX_BACK_TYPE_2: 2
+            DKX_TYPE_2: 3
+            DKX_BACK_TYPE_3: 4
+            DKX_TYPE_3: 5
+            DKX_BACK_TYPE_5: 6
+            DKX_FRONT_TYPE_5: 7
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 64
+      batch_size: 128
       shuffle: False
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
 
   valid:
     module: torch.utils.data
@@ -68,21 +82,28 @@ data:
           data_dirs:
             - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/valid'''
           classes:
-            DKX_TYPE_1: 0
-            DKX_BACK_TYPE_1: 1
-            DKX_FRONT_TYPE_5: 2
-            DKX_BACK_TYPE_5: 3
+            DKX_BACK_TYPE_1: 0
+            DKX_TYPE_1: 1
+            DKX_BACK_TYPE_2: 2
+            DKX_TYPE_2: 3
+            DKX_BACK_TYPE_3: 4
+            DKX_TYPE_3: 5
+            DKX_BACK_TYPE_5: 6
+            DKX_FRONT_TYPE_5: 7
           image_pattern: '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 64
+      batch_size: 128
       shuffle: False
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
 
 loss:
   module: flame.core.loss.weighted_supclasses_crossentropy
   class: WeightedSupclassesCrossEntropy
   WeightedSupclassesCrossEntropy:
-    weight: 'torch.tensor([0.25511432, 0.24027276, 0.25932611, 0.2452868]).to("cuda")'
+    weight: 'torch.tensor([0.120725, 0.1242547, 0.1245886, 0.128166, 0.1245886, 0.1304555, 0.1219652, 0.1252564]).to("cuda")'
     output_transform: 'lambda x: (x[0], x[1], x[2])'
 
 model:
@@ -90,7 +111,7 @@ model:
   class: MobileNetV3Small
   MobileNetV3Small:
     num_classes: 4
-    pretrained: False
+    pretrained: True
     features_fixed: False
 
 optim:
@@ -128,7 +149,7 @@ metrics:
             module: flame.core.loss.weighted_supclasses_crossentropy
             class: WeightedSupclassesCrossEntropy
             WeightedSupclassesCrossEntropy:
-              weight: 'torch.tensor([0.25511432, 0.24027276, 0.25932611, 0.2452868]).to("cuda")'
+              weight: 'torch.tensor([0.120725, 0.1242547, 0.1245886, 0.128166, 0.1245886, 0.1304555, 0.1219652, 0.1252564]).to("cuda")'
           output_transform: 'lambda x: (x[0], x[1], x[2])'
       accuracy:
         module: ignite.metrics

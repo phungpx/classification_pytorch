@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 class DocClassificationDataset(Dataset):
     def __init__(
         self,
-        data_dirs: List[str],
+        datadirs: List[str],
         classes: Dict[str, int],
         image_patterns: List[str],
         image_size: Tuple[int, int],
@@ -35,20 +35,20 @@ class DocClassificationDataset(Dataset):
         self.mean = torch.tensor(mean, dtype=torch.float).view(3, 1, 1) if mean is not None else None
         self.std = torch.tensor(std, dtype=torch.float).view(3, 1, 1) if std is not None else None
 
-        for data_dir in data_dirs:
+        for datadir in datadirs:
             for class_name in classes:
-                if not Path(data_dir).joinpath(class_name).exists():
+                if not Path(datadir).joinpath(class_name).exists():
                     raise FileNotFoundError(f'Folder {class_name} does not exist.')
 
         self.image_paths = []
-        for data_dir in data_dirs:
+        for datadir in datadirs:
             for class_name in classes:
                 for image_pattern in image_patterns:
-                    self.image_paths.append((Path(data_dir).joinpath(class_name).glob(image_pattern), class_name))
+                    self.image_paths.append((Path(datadir).joinpath(class_name).glob(image_pattern), class_name))
 
         self.image_paths = [(path, name) for paths, name in self.image_paths for path in paths]
 
-        print(f"{', '.join([Path(data_dir).stem for data_dir in data_dirs])} - {len(self.image_paths)}")
+        print(f"{', '.join([Path(datadir).stem for datadir in datadirs])} - {len(self.image_paths)}")
 
     def __len__(self):
         return len(self.image_paths)

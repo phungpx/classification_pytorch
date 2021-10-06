@@ -10,11 +10,15 @@ data:
           datadirs:
             - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/train'''
           classes:
-            DKX_TYPE_1: 0
-            DKX_BACK_TYPE_1: 1
-            DKX_FRONT_TYPE_5: 2
-            DKX_BACK_TYPE_5: 3
-            OTHERS: 4
+            DKX_BACK_TYPE_1: 0
+            DKX_TYPE_1: 1
+            DKX_BACK_TYPE_2: 2
+            DKX_TYPE_2: 3
+            DKX_BACK_TYPE_3: 4
+            DKX_TYPE_3: 5
+            DKX_BACK_TYPE_5: 6
+            DKX_FRONT_TYPE_5: 7
+            OTHERS: 8
           image_patterns:
             - '''**/*.*'''
           image_size: (224, 224)
@@ -37,7 +41,10 @@ data:
             - 'iaa.Grayscale(alpha=(0, 1))'
             - 'iaa.ChangeColorTemperature()'
             - 'iaa.Clouds()'
-      batch_size: 16
+      batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: True
 
   train_eval:
@@ -51,16 +58,23 @@ data:
           datadirs:
             - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/train'''
           classes:
-            DKX_TYPE_1: 0
-            DKX_BACK_TYPE_1: 1
-            DKX_FRONT_TYPE_5: 2
-            DKX_BACK_TYPE_5: 3
-            OTHERS: 4
+            DKX_BACK_TYPE_1: 0
+            DKX_TYPE_1: 1
+            DKX_BACK_TYPE_2: 2
+            DKX_TYPE_2: 3
+            DKX_BACK_TYPE_3: 4
+            DKX_TYPE_3: 5
+            DKX_BACK_TYPE_5: 6
+            DKX_FRONT_TYPE_5: 7
+            OTHERS: 8
           image_patterns:
             - '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 16
+      batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: False
 
   valid:
@@ -74,16 +88,23 @@ data:
           datadirs:
             - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/valid'''
           classes:
-            DKX_TYPE_1: 0
-            DKX_BACK_TYPE_1: 1
-            DKX_FRONT_TYPE_5: 2
-            DKX_BACK_TYPE_5: 3
-            OTHERS: 4
+            DKX_BACK_TYPE_1: 0
+            DKX_TYPE_1: 1
+            DKX_BACK_TYPE_2: 2
+            DKX_TYPE_2: 3
+            DKX_BACK_TYPE_3: 4
+            DKX_TYPE_3: 5
+            DKX_BACK_TYPE_5: 6
+            DKX_FRONT_TYPE_5: 7
+            OTHERS: 8
           image_patterns:
             - '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 16
+      batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: False
 
 loss:
@@ -94,15 +115,15 @@ loss:
       module: torch.nn
       class: CrossEntropyLoss
       CrossEntropyLoss:
-        weight: "torch.tensor([0.20668592, 0.19846735, 0.20901821, 0.20124389, 0.18458463]).to('cuda')"
+        weight: "torch.tensor([0.1088215, 0.1114017, 0.1116109, 0.1142608, 0.1116457, 0.1159344, 0.109728, 0.1121339, 0.104463]).to('cuda')"
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
   module: flame.core.model.mobilenets.mobilenetv3_small
   class: MobileNetV3Small
   MobileNetV3Small:
-    num_classes: 5
-    pretrained: True
+    num_classes: 9
+    pretrained: False
     features_fixed: False
 
 optim:
@@ -140,7 +161,7 @@ metrics:
             module: torch.nn
             class: CrossEntropyLoss
             CrossEntropyLoss:
-              weight: "torch.tensor([0.20668592, 0.19846735, 0.20901821, 0.20124389, 0.18458463]).to('cuda')"
+              weight: "torch.tensor([0.1088215, 0.1114017, 0.1116109, 0.1142608, 0.1116457, 0.1159344, 0.109728, 0.1121339, 0.104463]).to('cuda')"
           output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
@@ -179,8 +200,8 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: ''''''
-    mode: '''train'''
+    checkpoint_path: '''checkpoint/VEHICLE_REGISTRATION/classification/mobilenetv3_small/2110051614/backup_checkpoint_1000.pt'''
+    mode: '''resume'''
 
 terminate_on_nan:
   module: flame.handlers.terminate_on_nan
@@ -209,7 +230,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/VEHICLE_REGISTRATION/classification/mobilenetv3_small'''
+    dirname: '''checkpoint/doc_classification/VEHICLE_REGISTRATION/mobilenetv3_small'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -227,7 +248,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/VEHICLE_REGISTRATION/classification/mobilenetv3_small'''
+    dirname: '''checkpoint/doc_classification/VEHICLE_REGISTRATION/mobilenetv3_small'''
     save_interval: 1
     n_saved: 1
 
@@ -237,7 +258,7 @@ engine:
   Trainer:
     dataset: config['data']['train']
     device: '''cuda'''
-    max_epochs: 1000
+    max_epochs: 10000
 
 extralibs:
   torch: torch
