@@ -123,7 +123,7 @@ model:
   class: MobileNetV3Small
   MobileNetV3Small:
     num_classes: 9
-    pretrained: False
+    pretrained: True
     features_fixed: False
 
 optim:
@@ -200,8 +200,8 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/VEHICLE_REGISTRATION/classification/mobilenetv3_small/2110051614/backup_checkpoint_1000.pt'''
-    mode: '''resume'''
+    checkpoint_path: ''''''
+    mode: '''train'''
 
 terminate_on_nan:
   module: flame.handlers.terminate_on_nan
