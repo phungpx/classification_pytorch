@@ -4,10 +4,11 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_line_rotation
-        class: TextLineRotationDataset
-        TextLineRotationDataset:
-          datadir: '''dataset/multi_classes/text_line_rotation/train'''
+        module: flame.core.data.text_rotation
+        class: TextRotationDataset
+        TextRotationDataset:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/train/name_card/'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
@@ -27,42 +28,51 @@ data:
             - iaa.Clouds()
             - iaa.Dropout()
           max_transform: 5
-          dataset_len: None
       batch_size: 64
       shuffle: True
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
   train_eval:
     module: torch.utils.data
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_line_rotation
-        class: TextLineRotationDataset
-        TextLineRotationDataset:
-          datadir: '''dataset/multi_classes/text_line_rotation/train'''
+        module: flame.core.data.text_rotation
+        class: TextRotationDataset
+        TextRotationDataset:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/train/name_card/'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
           inner_size: 48
-          dataset_len: None
       batch_size: 64
       shuffle: False
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
   valid:
     module: torch.utils.data
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_line_rotation
-        class: TextLineRotationDataset
-        TextLineRotationDataset:
-          datadir: '''dataset/multi_classes/text_line_rotation/valid'''
+        module: flame.core.data.text_rotation
+        class: TextRotationDataset
+        TextRotationDataset:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/valid/name_card/'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
           inner_size: 48
       batch_size: 64
       shuffle: False
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
 loss:
   module: flame.core.loss.loss
@@ -72,11 +82,11 @@ loss:
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
-  module: flame.core.model.mobilenets.mobilenetv2
-  class: MobileNetV2
-  MobileNetV2:
+  module: flame.core.model.mobilenets.mobilenetv3_small
+  class: MobileNetV3Small
+  MobileNetV3Small:
     num_classes: 1
-    pretrained: False
+    pretrained: True
     features_fixed: False
 
 optim:
@@ -121,6 +131,12 @@ metrics:
         module: ignite.metrics
         class: Precision
         Precision:
+          average: True
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
+      recall:
+        module: ignite.metrics
+        class: Recall
+        Recall:
           average: True
           output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
     attach_to:
@@ -174,7 +190,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/multi_classes/text_line_rotation'''
+    dirname: '''checkpoint/multi_classes/text_rotation'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -192,7 +208,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/multi_classes/text_line_rotation'''
+    dirname: '''checkpoint/multi_classes/text_rotation'''
     save_interval: 1
     n_saved: 1
 

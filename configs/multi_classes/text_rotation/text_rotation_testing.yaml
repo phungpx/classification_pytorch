@@ -4,22 +4,25 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_line_rotation_dataset
-        class: TextLineRotationDataset
-        TextLineRotationDataset:
-          datadir: '''dataset/test'''
+        module: flame.core.data.text_rotation
+        class: TextRotationDataset
+        TextRotationDataset:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/test/name_card/'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
           image_ratio: 20
           inner_size: 48
-          dataset_len: None
-      batch_size: 16
+      batch_size: 64
       shuffle: False
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
 model:
-  module: flame.core.model.mobilenetv2
-  class: MobileNetV2
-  MobileNetV2:
+  module: flame.core.model.mobilenets.mobilenetv3_small
+  class: MobileNetV3Small
+  MobileNetV3Small:
     num_classes: 1
     pretrained: False
     features_fixed: False
@@ -80,7 +83,7 @@ engine:
   class: Evaluator
   Evaluator:
     dataset: config['data']['test']
-    device: '''cuda:3'''
+    device: '''cuda'''
 
 extralibs:
   torch: torch
