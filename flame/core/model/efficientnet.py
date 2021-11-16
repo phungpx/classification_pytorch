@@ -4,7 +4,7 @@ from torch import nn
 
 
 class SiLU(nn.Module):
-    '''
+    '''SiLU Activation Function
     Applies the Sigmoid Linear Unit (SiLU) function element-wise:
         SiLU(x) = x * sigmoid(x)
     '''
@@ -12,19 +12,66 @@ class SiLU(nn.Module):
     def __init__(self):
         super(SiLU, self).__init__()
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x * torch.sigmoid(x)
+
+
+class Mish(nn.Module):
+    '''Mish Activation Function
+        f(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + e ^ x))
+        with: softplus(x) = ln(1 + e ^ x)
+    '''
+    def __init__(self):
+        super(Mish, self).__init__()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x * (torch.tanh(nn.functional.softplus(x)))
+        return x
+
+
+class ConvMish(nn.Module):
+    '''Basic Block
+        Conv2D -> Batch Norm -> Mish
+    '''
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        padding: int = 0,
+        groups: int = 1,
+        bias: bool = False
+    ):
+        super(ConvMish, self).__init__()
+        self.conv_mish = nn.Sequential(
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=kernel_size,
+                stride=stride,
+                padding=padding,
+                groups=groups,
+                bias=bias,
+            )
+            nn.BatchNorm2d(num_features=out_channels),
+            Mish(),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.conv_mish(x)
 
 
 class ConvSiLU(nn.Module):
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        kernel_size,
-        stride,
-        padding,
-        groups=1
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        padding: int = 0,
+        groups: int = 1,
+        bias: bool = False,
     ):
         super(ConvSiLU, self).__init__()
         self.conv_silu = nn.Sequential(
@@ -35,12 +82,13 @@ class ConvSiLU(nn.Module):
                 stride=stride,
                 padding=padding,
                 groups=groups,
-                bias=False
+                bias=bias,
             ),
             nn.BatchNorm2d(num_features=out_channels),
-            SiLU(),)
+            SiLU(),
+        )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.conv_silu(x)
 
 
@@ -58,7 +106,7 @@ class SqueezeExcitation(nn.Module):
                 out_channels=reduced_dim,
                 kernel_size=1
             ),  # C x 1 x 1 -> C/r x 1 x 1
-            SiLU(),  # in original using ReLU
+            Mish(),  # SiLU(),  # in original using ReLU
             nn.Conv2d(
                 in_channels=reduced_dim,
                 out_channels=in_channels,
@@ -73,14 +121,14 @@ class SqueezeExcitation(nn.Module):
 class InvertedResidualBlock(nn.Module):
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        kernel_size,
-        stride,
-        padding,
-        expand_ratio,
-        reduction=4,  # r in squeeze-and-excitation optimization
-        survival_probability=0.8,  # survival_probability of stochastic depth
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int = 1,
+        stride: int = 1,
+        padding: int = 0,
+        expand_ratio: int = 1,
+        reduction: int = 4,  # r in squeeze-and-excitation optimization
+        survival_probability: float = 0.8,  # survival_probability of stochastic depth
     ):
         super(InvertedResidualBlock, self).__init__()
         self.survival_probability = survival_probability
@@ -90,7 +138,7 @@ class InvertedResidualBlock(nn.Module):
         reduced_dim = math.floor(in_channels / reduction)
 
         if self.expand:
-            self.expand_conv = ConvSiLU(
+            self.expand_conv = ConvMish(
                 in_channels=in_channels,
                 out_channels=hidden_dim,
                 kernel_size=1,
@@ -99,7 +147,7 @@ class InvertedResidualBlock(nn.Module):
             )
 
         self.conv = nn.Sequential(
-            ConvSiLU(
+            ConvMish(
                 in_channels=hidden_dim,
                 out_channels=hidden_dim,
                 kernel_size=kernel_size,
@@ -141,31 +189,34 @@ class InvertedResidualBlock(nn.Module):
 class EfficientNet(nn.Module):
     def __init__(self, version, num_classes):
         super(EfficientNet, self).__init__()
-        # (compound_coefficient, resolution, dropout_rate)
-        self.efficient_parameters = {"b0": (0, 224, 0.2),
-                                     "b1": (0.5, 240, 0.2),
-                                     "b2": (1, 260, 0.3),
-                                     "b3": (2, 300, 0.3),
-                                     "b4": (3, 380, 0.4),
-                                     "b5": (4, 456, 0.4),
-                                     "b6": (5, 528, 0.5),
-                                     "b7": (6, 600, 0.5)}
+        self.efficient_parameters = {
+            "b0": (0, 224, 0.2),  # (compound_coefficient, resolution, dropout_rate)
+            "b1": (0.5, 240, 0.2),
+            "b2": (1, 260, 0.3),
+            "b3": (2, 300, 0.3),
+            "b4": (3, 380, 0.4),
+            "b5": (4, 456, 0.4),
+            "b6": (5, 528, 0.5),
+            "b7": (6, 600, 0.5),
+        }
 
         width_factor, depth_factor, dropout_rate = self._calculate_factors(version)
 
-        self.baseline_params = [['Conv', 32, 2, 3, 1],        # channels=32, stride=2, kernel_size=3, padding=1
-                                ['MBConv', 1, 16, 1, 1, 3],   # expand_ratio=1, channels=16, layers=1, stride=1, kernel_size=3
-                                ['MBConv', 6, 24, 2, 2, 3],   # expand_ratio=6, channels=24, layers=2, stride=2, kernel_size=3
-                                ['MBConv', 6, 40, 2, 2, 5],   # expand_ratio=6, channels=40, layers=2, stride=2, kernel_size=5
-                                ['MBConv', 6, 80, 3, 2, 3],   # expand_ratio=6, channels=80, layers=3, stride=2, kernel_size=3
-                                ['MBConv', 6, 112, 3, 1, 5],  # expand_ratio=6, channels=112, layers=3, stride=1, kernel_size=5
-                                ['MBConv', 6, 192, 4, 2, 5],  # expand_ratio=6, channels=192, layers=4, stride=2, kernel_size=5
-                                ['MBConv', 6, 320, 1, 1, 3],  # expand_ratio=6, channels=320, layers=1, stride=1, kernel_size=3
-                                ['Conv', 1280, 1, 1, 0],      # channels=1280, stride=1, kernel_size=1, padding=0
-                                ['AvgPool', 1],               # output_size=1
-                                ['Flatten', 1, -1],           # start_dim=1, end_dim=-1
-                                ['Dropout', dropout_rate],    # dropout_rate=dropout_rate
-                                ['Linear', num_classes]]      # out_features=num_classes
+        self.baseline_params = [
+            ['Conv', 32, 2, 3, 1],        # channels=32, stride=2, kernel_size=3, padding=1
+            ['MBConv', 1, 16, 1, 1, 3],   # expand_ratio=1, channels=16, layers=1, stride=1, kernel_size=3
+            ['MBConv', 6, 24, 2, 2, 3],   # expand_ratio=6, channels=24, layers=2, stride=2, kernel_size=3
+            ['MBConv', 6, 40, 2, 2, 5],   # expand_ratio=6, channels=40, layers=2, stride=2, kernel_size=5
+            ['MBConv', 6, 80, 3, 2, 3],   # expand_ratio=6, channels=80, layers=3, stride=2, kernel_size=3
+            ['MBConv', 6, 112, 3, 1, 5],  # expand_ratio=6, channels=112, layers=3, stride=1, kernel_size=5
+            ['MBConv', 6, 192, 4, 2, 5],  # expand_ratio=6, channels=192, layers=4, stride=2, kernel_size=5
+            ['MBConv', 6, 320, 1, 1, 3],  # expand_ratio=6, channels=320, layers=1, stride=1, kernel_size=3
+            ['Conv', 1280, 1, 1, 0],      # channels=1280, stride=1, kernel_size=1, padding=0
+            ['AvgPool', 1],               # output_size=1
+            ['Flatten', 1, -1],           # start_dim=1, end_dim=-1
+            ['Dropout', dropout_rate],    # dropout_rate=dropout_rate
+            ['Linear', num_classes],      # out_features=num_classes
+        ]
 
         self.features = self._create_network(width_factor=width_factor, depth_factor=depth_factor)
 
@@ -182,8 +233,15 @@ class EfficientNet(nn.Module):
             if params[0] == 'Conv':
                 channels, stride, kernel_size, padding = params[1:]
                 channels = math.floor(channels * width_factor) if in_channels == 3 else math.ceil(channels * width_factor)
-                features.append(ConvSiLU(in_channels=in_channels, out_channels=channels,
-                                         kernel_size=kernel_size, stride=stride, padding=padding))
+                features.append(
+                    ConvMish(
+                        in_channels=in_channels,
+                        out_channels=channels,
+                        kernel_size=kernel_size,
+                        stride=stride,
+                        padding=padding
+                    )
+                )
                 in_channels = channels
             elif params[0] == 'MBConv':
                 expand_ratio, channels, repeats, stride, kernel_size = params[1:]
@@ -192,12 +250,16 @@ class EfficientNet(nn.Module):
                 for layer in range(repeats):
                     padding = kernel_size // 2
                     stride = stride if layer == 0 else 1
-                    features.append(InvertedResidualBlock(in_channels=in_channels,
-                                                          out_channels=channels,
-                                                          expand_ratio=expand_ratio,
-                                                          stride=stride,
-                                                          kernel_size=kernel_size,
-                                                          padding=padding))
+                    features.append(
+                        InvertedResidualBlock(
+                            in_channels=in_channels,
+                            out_channels=channels,
+                            expand_ratio=expand_ratio,
+                            stride=stride,
+                            kernel_size=kernel_size,
+                            padding=padding
+                        )
+                    )
                     in_channels = channels
             elif params[0] == 'AvgPool':
                 features.append(nn.AdaptiveAvgPool2d(output_size=params[1]))
