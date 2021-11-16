@@ -13,6 +13,8 @@ data:
           image_height: 32
           image_ratio: 20
           inner_size: 48
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
           transforms:
             - iaa.ChannelShuffle()
             - iaa.AdditiveGaussianNoise(scale=(0, 50), per_channel=True)
@@ -48,6 +50,8 @@ data:
           image_height: 32
           image_ratio: 20
           inner_size: 48
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
       batch_size: 64
       shuffle: False
       pin_memory: True
@@ -68,6 +72,8 @@ data:
           image_height: 32
           image_ratio: 20
           inner_size: 48
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
       batch_size: 64
       shuffle: False
       pin_memory: True
