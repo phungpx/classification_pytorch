@@ -14,8 +14,10 @@ except ImportError:
 __all__ = ["MobileNetV3", "mobilenet_v3_large", "mobilenet_v3_small"]
 
 
-model_urls = {"mobilenet_v3_large": "https://download.pytorch.org/models/mobilenet_v3_large-8738ca79.pth",
-              "mobilenet_v3_small": "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth"}
+model_urls = {
+    "mobilenet_v3_large": "https://download.pytorch.org/models/mobilenet_v3_large-8738ca79.pth",
+    "mobilenet_v3_small": "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth"
+}
 
 
 def _make_divisible(v: float, divisor: int, min_value: Optional[int] = None) -> int:
@@ -56,9 +58,17 @@ class SqueezeExcitation(nn.Module):
 
 
 class ConvBNActivation(nn.Sequential):
-    def __init__(self, in_planes: int, out_planes: int, kernel_size: int = 3,
-                 stride: int = 1, groups: int = 1, norm_layer: Optional[Callable[..., nn.Module]] = None,
-                 activation_layer: Optional[Callable[..., nn.Module]] = None, dilation: int = 1,) -> None:
+    def __init__(
+        self,
+        in_planes: int,
+        out_planes: int,
+        kernel_size: int = 3,
+        stride: int = 1,
+        groups: int = 1,
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
+        activation_layer: Optional[Callable[..., nn.Module]] = None,
+        dilation: int = 1,
+    ) -> None:
         padding = (kernel_size - 1) // 2 * dilation
 
         if norm_layer is None:
@@ -68,7 +78,16 @@ class ConvBNActivation(nn.Sequential):
             activation_layer = nn.ReLU6
 
         super().__init__(
-            nn.Conv2d(in_planes, out_planes, kernel_size, stride, padding, dilation=dilation, groups=groups, bias=False),
+            nn.Conv2d(
+                in_planes,
+                out_planes,
+                kernel_size,
+                stride,
+                padding,
+                dilation=dilation,
+                groups=groups,
+                bias=False
+            ),
             norm_layer(out_planes),
             activation_layer(inplace=True)
         )
@@ -78,8 +97,18 @@ class ConvBNActivation(nn.Sequential):
 
 class InvertedResidualConfig:
     # Stores information listed at Tables 1 and 2 of the MobileNetV3 paper
-    def __init__(self, input_channels: int, kernel: int, expanded_channels: int, out_channels: int, use_se: bool,
-                 activation: str, stride: int, dilation: int, width_mult: float):
+    def __init__(
+        self,
+        input_channels: int,
+        kernel: int,
+        expanded_channels: int,
+        out_channels: int,
+        use_se: bool,
+        activation: str,
+        stride: int,
+        dilation: int,
+        width_mult: float
+    ):
         self.input_channels = self.adjust_channels(input_channels, width_mult)
         self.kernel = kernel
         self.expanded_channels = self.adjust_channels(expanded_channels, width_mult)
@@ -96,8 +125,12 @@ class InvertedResidualConfig:
 
 class InvertedResidual(nn.Module):
     # Implemented as described at section 5 of MobileNetV3 paper
-    def __init__(self, cnf: InvertedResidualConfig, norm_layer: Callable[..., nn.Module],
-                 se_layer: Callable[..., nn.Module] = SqueezeExcitation):
+    def __init__(
+        self,
+        cnf: InvertedResidualConfig,
+        norm_layer: Callable[..., nn.Module],
+        se_layer: Callable[..., nn.Module] = SqueezeExcitation
+    ):
         super().__init__()
         if not (1 <= cnf.stride <= 2):
             raise ValueError('illegal stride value')
@@ -109,22 +142,44 @@ class InvertedResidual(nn.Module):
 
         # expand
         if cnf.expanded_channels != cnf.input_channels:
-            layers.append(ConvBNActivation(cnf.input_channels, cnf.expanded_channels, kernel_size=1,
-                                           norm_layer=norm_layer, activation_layer=activation_layer))
+            layers.append(
+                ConvBNActivation(
+                    cnf.input_channels,
+                    cnf.expanded_channels,
+                    kernel_size=1,
+                    norm_layer=norm_layer,
+                    activation_layer=activation_layer
+                )
+            )
 
         # depthwise
         stride = 1 if cnf.dilation > 1 else cnf.stride
-        layers.append(ConvBNActivation(cnf.expanded_channels, cnf.expanded_channels,
-                                       kernel_size=cnf.kernel, stride=stride,
-                                       dilation=cnf.dilation, groups=cnf.expanded_channels,
-                                       norm_layer=norm_layer, activation_layer=activation_layer))
+        layers.append(
+            ConvBNActivation(
+                cnf.expanded_channels,
+                cnf.expanded_channels,
+                kernel_size=cnf.kernel,
+                stride=stride,
+                dilation=cnf.dilation,
+                groups=cnf.expanded_channels,
+                norm_layer=norm_layer,
+                activation_layer=activation_layer
+            )
+        )
+
         if cnf.use_se:
             layers.append(se_layer(cnf.expanded_channels))
 
         # project
-        layers.append(ConvBNActivation(cnf.expanded_channels, cnf.out_channels,
-                                       kernel_size=1, norm_layer=norm_layer,
-                                       activation_layer=nn.Identity))
+        layers.append(
+            ConvBNActivation(
+                cnf.expanded_channels,
+                cnf.out_channels,
+                kernel_size=1,
+                norm_layer=norm_layer,
+                activation_layer=nn.Identity
+            )
+        )
 
         self.block = nn.Sequential(*layers)
         self.out_channels = cnf.out_channels
@@ -140,9 +195,15 @@ class InvertedResidual(nn.Module):
 
 
 class MobileNetV3(nn.Module):
-    def __init__(self, inverted_residual_setting: List[InvertedResidualConfig],
-                 last_channel: int, num_classes: int = 1000, block: Optional[Callable[..., nn.Module]] = None,
-                 norm_layer: Optional[Callable[..., nn.Module]] = None, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        inverted_residual_setting: List[InvertedResidualConfig],
+        last_channel: int,
+        num_classes: int = 1000,
+        block: Optional[Callable[..., nn.Module]] = None,
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
+        **kwargs: Any
+    ) -> None:
         """
         MobileNet V3 main class
         Args:
@@ -169,9 +230,15 @@ class MobileNetV3(nn.Module):
 
         # building first layer
         firstconv_output_channels = inverted_residual_setting[0].input_channels
-        layers.append(ConvBNActivation(3, firstconv_output_channels,
-                                       kernel_size=3, stride=2,
-                                       norm_layer=norm_layer, activation_layer=nn.Hardswish))
+        layers.append(
+            ConvBNActivation(
+                3, firstconv_output_channels,
+                kernel_size=3,
+                stride=2,
+                norm_layer=norm_layer,
+                activation_layer=nn.Hardswish
+            )
+        )
 
         # building inverted residual blocks
         for cnf in inverted_residual_setting:
@@ -180,15 +247,24 @@ class MobileNetV3(nn.Module):
         # building last several layers
         lastconv_input_channels = inverted_residual_setting[-1].out_channels
         lastconv_output_channels = 6 * lastconv_input_channels
-        layers.append(ConvBNActivation(lastconv_input_channels, lastconv_output_channels, kernel_size=1,
-                                       norm_layer=norm_layer, activation_layer=nn.Hardswish))
+        layers.append(
+            ConvBNActivation(
+                lastconv_input_channels,
+                lastconv_output_channels,
+                kernel_size=1,
+                norm_layer=norm_layer,
+                activation_layer=nn.Hardswish
+            )
+        )
 
         self.features = nn.Sequential(*layers)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
-        self.classifier = nn.Sequential(nn.Linear(lastconv_output_channels, last_channel),
-                                        nn.Hardswish(inplace=True),
-                                        nn.Dropout(p=0.2, inplace=True),
-                                        nn.Linear(last_channel, num_classes))
+        self.classifier = nn.Sequential(
+            nn.Linear(lastconv_output_channels, last_channel),
+            nn.Hardswish(inplace=True),
+            nn.Dropout(p=0.2, inplace=True),
+            nn.Linear(last_channel, num_classes)
+        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -214,8 +290,13 @@ class MobileNetV3(nn.Module):
         return self._forward_impl(x)
 
 
-def _mobilenet_v3_conf(arch: str, width_mult: float = 1.0, reduced_tail: bool = False, dilated: bool = False,
-                       **kwargs: Any):
+def _mobilenet_v3_conf(
+    arch: str,
+    width_mult: float = 1.0,
+    reduced_tail: bool = False,
+    dilated: bool = False,
+    **kwargs: Any
+):
     reduce_divider = 2 if reduced_tail else 1
     dilation = 2 if dilated else 1
 
@@ -240,7 +321,9 @@ def _mobilenet_v3_conf(arch: str, width_mult: float = 1.0, reduced_tail: bool = 
             bneck_conf(160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, "HS", 1, dilation),
             bneck_conf(160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, "HS", 1, dilation),
         ]
+
         last_channel = adjust_channels(1280 // reduce_divider)  # C5
+
     elif arch == "mobilenet_v3_small":
         inverted_residual_setting = [
             bneck_conf(16, 3, 16, 16, True, "RE", 2, 1),  # C1
@@ -255,15 +338,23 @@ def _mobilenet_v3_conf(arch: str, width_mult: float = 1.0, reduced_tail: bool = 
             bneck_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, "HS", 1, dilation),
             bneck_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, "HS", 1, dilation),
         ]
+
         last_channel = adjust_channels(1024 // reduce_divider)  # C5
+
     else:
         raise ValueError("Unsupported model type {}".format(arch))
 
     return inverted_residual_setting, last_channel
 
 
-def _mobilenet_v3_model(arch: str, inverted_residual_setting: List[InvertedResidualConfig],
-                        last_channel: int, pretrained: bool, progress: bool, **kwargs: Any):
+def _mobilenet_v3_model(
+    arch: str,
+    inverted_residual_setting: List[InvertedResidualConfig],
+    last_channel: int,
+    pretrained: bool,
+    progress: bool,
+    **kwargs: Any
+):
     model = MobileNetV3(inverted_residual_setting, last_channel, **kwargs)
     if pretrained:
         if model_urls.get(arch, None) is None:
