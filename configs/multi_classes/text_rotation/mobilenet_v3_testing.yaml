@@ -22,9 +22,9 @@ data:
       num_workers: 12
 
 model:
-  module: flame.core.model.mobilenets.mobilenetv3_small
-  class: MobileNetV3Small
-  MobileNetV3Small:
+  module: flame.core.model.mobilenets.mobilenetv3_large
+  class: MobileNetV3Large
+  MobileNetV3Large:
     num_classes: 1
     pretrained: False
     features_fixed: False

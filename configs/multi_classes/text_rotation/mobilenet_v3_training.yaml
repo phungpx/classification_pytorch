@@ -87,10 +87,18 @@ loss:
     loss_fn: torch.nn.BCEWithLogitsLoss()
     output_transform: 'lambda x: (x[0], x[1])'
 
+# model:
+#   module: flame.core.model.mobilenets.mobilenetv3_small
+#   class: MobileNetV3Small
+#   MobileNetV3Small:
+#     num_classes: 1
+#     pretrained: True
+#     features_fixed: False
+
 model:
-  module: flame.core.model.mobilenets.mobilenetv3_small
-  class: MobileNetV3Small
-  MobileNetV3Small:
+  module: flame.core.model.mobilenets.mobilenetv3_large
+  class: MobileNetV3Large
+  MobileNetV3Large:
     num_classes: 1
     pretrained: True
     features_fixed: False
