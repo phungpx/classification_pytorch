@@ -83,14 +83,14 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/VEHICLE_REGISTRATION/classification/mobilenetv3_small/2110051614/best_model_45_loss=-0.0019.pt'''
+    checkpoint_path: '''checkpoint/doc_classification/VEHICLE_REGISTRATION/mobilenetv3_small/2110080005/best_model_29_loss=-0.0020.pt'''
     mode: '''test'''
 
-# comparer:
-#   module: flame.handlers.pred_data_comparer
-#   class: PredDataComparer
-#   PredDataComparer:
-#     output_transform: 'lambda x: (x[0].softmax(dim=1), x[1], x[-1])'
+comparer:
+  module: flame.handlers.pred_data_comparer
+  class: PredDataComparer
+  PredDataComparer:
+    output_transform: 'lambda x: (x[0].softmax(dim=1), x[1], x[-1])'
 
 engine:
   module: flame.core.engine.engine
