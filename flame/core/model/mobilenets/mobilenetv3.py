@@ -11,7 +11,7 @@ except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
 
-__all__ = ["MobileNetV3", "mobilenet_v3_large", "mobilenet_v3_small"]
+__all__ = ["MobileNetV3", "mobilenet_v3_large", "mobilenet_v3_small", "MobileNetV3Large", "MobileNetV3Small"]
 
 
 model_urls = {
@@ -360,31 +360,93 @@ def _mobilenet_v3_model(
         if model_urls.get(arch, None) is None:
             raise ValueError("No checkpoint is available for model type {}".format(arch))
         state_dict = load_state_dict_from_url(model_urls[arch], progress=progress)
-        model.load_state_dict(state_dict)
+        state_dict.pop('classifier.3.weight')
+        state_dict.pop('classifier.3.bias')
+        model.load_state_dict(state_dict, strict=False)
+
     return model
 
 
-def mobilenet_v3_large(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> MobileNetV3:
-    """
-    Constructs a large MobileNetV3 architecture from
-    `"Searching for MobileNetV3" <https://arxiv.org/abs/1905.02244>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    arch = "mobilenet_v3_large"
-    inverted_residual_setting, last_channel = _mobilenet_v3_conf(arch, **kwargs)
-    return _mobilenet_v3_model(arch, inverted_residual_setting, last_channel, pretrained, progress, **kwargs)
+# def mobilenet_v3_large(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> MobileNetV3:
+#     """
+#     Constructs a large MobileNetV3 architecture from
+#     `"Searching for MobileNetV3" <https://arxiv.org/abs/1905.02244>`_.
+#     Args:
+#         pretrained (bool): If True, returns a model pre-trained on ImageNet
+#         progress (bool): If True, displays a progress bar of the download to stderr
+#     """
+#     arch = "mobilenet_v3_large"
+#     inverted_residual_setting, last_channel = _mobilenet_v3_conf(arch, **kwargs)
+#     return _mobilenet_v3_model(arch, inverted_residual_setting, last_channel, pretrained, progress, **kwargs)
 
 
-def mobilenet_v3_small(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> MobileNetV3:
-    """
-    Constructs a small MobileNetV3 architecture from
-    `"Searching for MobileNetV3" <https://arxiv.org/abs/1905.02244>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    arch = "mobilenet_v3_small"
-    inverted_residual_setting, last_channel = _mobilenet_v3_conf(arch, **kwargs)
-    return _mobilenet_v3_model(arch, inverted_residual_setting, last_channel, pretrained, progress, **kwargs)
+# def mobilenet_v3_small(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> MobileNetV3:
+#     """
+#     Constructs a small MobileNetV3 architecture from
+#     `"Searching for MobileNetV3" <https://arxiv.org/abs/1905.02244>`_.
+#     Args:
+#         pretrained (bool): If True, returns a model pre-trained on ImageNet
+#         progress (bool): If True, displays a progress bar of the download to stderr
+#     """
+#     arch = "mobilenet_v3_small"
+#     inverted_residual_setting, last_channel = _mobilenet_v3_conf(arch, **kwargs)
+#     return _mobilenet_v3_model(arch, inverted_residual_setting, last_channel, pretrained, progress, **kwargs)
+
+
+class MobileNetV3Large(nn.Module):
+    def __init__(self, pretrained: bool = False, progress: bool = True, **kwargs: Any):
+        """
+        Constructs a large MobileNetV3 architecture from
+        `"Searching for MobileNetV3" <https://arxiv.org/abs/1905.02244>`_.
+        Args:
+            pretrained (bool): If True, returns a model pre-trained on ImageNet
+            progress (bool): If True, displays a progress bar of the download to stderr
+        """
+        super(MobileNetV3Large, self).__init__()
+        arch = "mobilenet_v3_large"
+        inverted_residual_setting, last_channel = _mobilenet_v3_conf(arch, **kwargs)
+        self.model = _mobilenet_v3_model(arch, inverted_residual_setting, last_channel, pretrained, progress, **kwargs)
+
+    def forward(self, x):
+        return self.model(x)
+
+    def state_dict(self):
+        return self.model.state_dict()
+
+    def load_state_dict(self, state_dict):
+        self.model.load_state_dict(state_dict)
+
+
+class MobileNetV3Small(nn.Module):
+    def __init__(self, pretrained: bool = False, progress: bool = True, **kwargs: Any):
+        """
+        Constructs a large MobileNetV3 architecture from
+        `"Searching for MobileNetV3" <https://arxiv.org/abs/1905.02244>`_.
+        Args:
+            pretrained (bool): If True, returns a model pre-trained on ImageNet
+            progress (bool): If True, displays a progress bar of the download to stderr
+        """
+        super(MobileNetV3Small, self).__init__()
+        arch = "mobilenet_v3_small"
+        inverted_residual_setting, last_channel = _mobilenet_v3_conf(arch, **kwargs)
+        self.model = _mobilenet_v3_model(arch, inverted_residual_setting, last_channel, pretrained, progress, **kwargs)
+
+    def forward(self, x):
+        return self.model(x)
+
+    def state_dict(self):
+        return self.model.state_dict()
+
+    def load_state_dict(self, state_dict):
+        self.model.load_state_dict(state_dict)
+
+
+if __name__ == "__main__":
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = MobileNetV3Small(num_classes=3, pretrained=True).to(device)
+    dummy_input = torch.rand(size=[8, 3, 224, 224], dtype=torch.float32, device=device)
+    output = model(dummy_input)
+
+    print(f"Input Shape: {dummy_input.shape}")
+    print(f"Output Shape: {output.shape}")
+    print(f"Number of parameters: {sum((p.numel() for p in model.parameters() if p.requires_grad))}")
