@@ -4,102 +4,94 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.doc_orientation_dataset
-        class: DocOrientationDataset
-        DocOrientationDataset:
-          data_dirs:
-            - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/train'''
-            - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/test'''
-          classes:
-            CARD_BACK: 0
+        module: flame.core.data.text_rotation
+        class: TextDirection
+        TextDirection:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/train/name_card/'''
+          image_pattern: '''**/*.jpg'''
+          image_height: 32
+          image_ratio: 20
+          inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
-          image_pattern: '''**/*.*'''
-          image_size: (224, 224)
-          inner_size: 256
-          max_transforms: 7
           transforms:
-            - 'iaa.Add(value=(-50, 50), per_channel=True)'
-            - 'iaa.AdditiveGaussianNoise(loc=(-5, 5), scale=10, per_channel=True)'
-            - 'iaa.Dropout(p=(0, 0.2))'
-            - 'iaa.GammaContrast()'
-            - 'iaa.JpegCompression(compression=(0, 50))'
-            - 'iaa.GaussianBlur(sigma=(0, 2))'
-            - 'iaa.MotionBlur()'
-            - 'iaa.AddToHueAndSaturation(value=(-50, 50))'
-            - 'iaa.PerspectiveTransform(scale=(0, 0.1))'
-            - 'iaa.Pad(percent=(0, 0.1))'
-            - 'iaa.Crop(percent=(0, 0.2))'
-            - 'iaa.Grayscale(alpha=(0, 1))'
-            - 'iaa.ChangeColorTemperature()'
-            - 'iaa.Clouds()'
-      batch_size: 8
-      pin_memory: True
-      num_workers: 12
-      drop_last: False
+            - iaa.ChannelShuffle()
+            - iaa.AdditiveGaussianNoise(scale=(0, 50), per_channel=True)
+            - iaa.Add(value=(-100, 100), per_channel=True)
+            - iaa.AddToHueAndSaturation((-50, 50), per_channel=True)
+            - iaa.GammaContrast((0.5, 2.0), per_channel=True)
+            - iaa.GaussianBlur(sigma=(0, 1))
+            - iaa.MotionBlur()
+            - iaa.PerspectiveTransform(scale=(0, 0.1))
+            - iaa.JpegCompression(compression=(0, 30))
+            - iaa.Grayscale(alpha=(0.0, 1.0))
+            - iaa.ChangeColorTemperature()
+            - iaa.Clouds()
+            - iaa.Dropout()
+          max_transform: 5
+      batch_size: 64
       shuffle: True
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
   train_eval:
     module: torch.utils.data
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.doc_orientation_dataset
-        class: DocOrientationDataset
-        DocOrientationDataset:
-          data_dirs:
-            - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/train'''
-            - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/test'''
-          classes:
-            CARD_BACK: 0
+        module: flame.core.data.text_rotation
+        class: TextDirection
+        TextDirection:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/train/name_card/'''
+          image_pattern: '''**/*.jpg'''
+          image_height: 32
+          image_ratio: 20
+          inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
-          image_pattern: '''**/*.*'''
-          image_size: (224, 224)
-          inner_size: 256
-      batch_size: 8
-      pin_memory: True
-      num_workers: 12
-      drop_last: False
+      batch_size: 64
       shuffle: False
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
   valid:
     module: torch.utils.data
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.doc_orientation_dataset
-        class: DocOrientationDataset
-        DocOrientationDataset:
-          data_dirs:
-            - '''dataset/multi_classes/doc_orientation/COMMUNIST_PARTY/valid'''
-          classes:
-            CARD_BACK: 0
+        module: flame.core.data.text_rotation
+        class: TextDirection
+        TextDirection:
+          datadirs:
+            - '''dataset/multi_classes/text_rotation/valid/name_card/'''
+          image_pattern: '''**/*.jpg'''
+          image_height: 32
+          image_ratio: 20
+          inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
-          image_pattern: '''**/*.*'''
-          image_size: (224, 224)
-          inner_size: 256
-      batch_size: 8
-      pin_memory: True
-      num_workers: 12
-      drop_last: False
+      batch_size: 64
       shuffle: False
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
 
 loss:
   module: flame.core.loss.loss
   class: Loss
   Loss:
-    loss_fn:
-      module: torch.nn
-      class: CrossEntropyLoss
+    loss_fn: torch.nn.BCEWithLogitsLoss()
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
   module: flame.core.model.mobilenets.mobilenetv3_small
-  class: MobileNetV3Small
-  MobileNetV3Small:
-    num_classes: 4
+  class: DenseNet
+  DenseNet:
+    num_classes: 1
     pretrained: True
     features_fixed: False
 
@@ -134,27 +126,25 @@ metrics:
         module: flame.handlers.metrics.loss
         class: Loss
         Loss:
-          loss_fn:
-            module: torch.nn
-            class: CrossEntropyLoss
+          loss_fn: torch.nn.BCEWithLogitsLoss()
           output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
         class: Accuracy
         Accuracy:
-          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
       precision:
         module: ignite.metrics
         class: Precision
         Precision:
           average: True
-          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
       recall:
         module: ignite.metrics
         class: Recall
         Recall:
           average: True
-          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
     attach_to:
       train_evaluator: '''train'''
       valid_evaluator: '''valid'''
@@ -191,21 +181,22 @@ lr_scheduler:
     mode: '''min'''
     patience: 20
     verbose: True
+    min_lr: 0.0001
 
 # early_stopping:
 #   module: flame.handlers.early_stopping
 #   class: EarlyStopping
 #   EarlyStopping:
-#     patience: 20
 #     score_name: '''loss'''
 #     evaluator_name: '''valid_evaluator'''
 #     mode: '''min'''
+#     patience: 20
 
 best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/doc_orientation/COMMUNIST_PARTY/mobilenetv3_small'''
+    dirname: '''checkpoint/multi_classes/text_rotation'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -223,7 +214,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/doc_orientation/COMMUNIST_PARTY/mobilenetv3_small'''
+    dirname: '''checkpoint/multi_classes/text_rotation'''
     save_interval: 1
     n_saved: 1
 

@@ -4,11 +4,11 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.doc_orientation_dataset
-        class: DocOrientationDataset
-        DocOrientationDataset:
-          data_dirs:
-            - '''dataset/multi_classes/doc_orientation/VEHICLE_REGISTRATION/test'''
+        module: flame.core.data.document_classification
+        class: DocumentClassification
+        DocumentClassification:
+          datadirs:
+            - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/test'''
           classes:
             DKX_BACK_TYPE_1: 0
             DKX_TYPE_1: 1
@@ -18,17 +18,22 @@ data:
             DKX_TYPE_3: 5
             DKX_BACK_TYPE_5: 6
             DKX_FRONT_TYPE_5: 7
-          image_pattern: '''**/*.*'''
+            OTHERS: 8
+          image_patterns:
+            - '''**/*.*'''
           image_size: (224, 224)
           inner_size: 256
       batch_size: 64
+      pin_memory: True
+      num_workers: 12
+      drop_last: False
       shuffle: False
 
 model:
   module: flame.core.model.mobilenets.mobilenetv3_small
   class: MobileNetV3Small
   MobileNetV3Small:
-    num_classes: 4
+    num_classes: 9
     pretrained: False
     features_fixed: False
 
@@ -42,11 +47,11 @@ metrics:
         class: Loss
         Loss:
           loss_fn:
-            module: flame.core.loss.weighted_supclasses_crossentropy
-            class: WeightedSupclassesCrossEntropy
-            WeightedSupclassesCrossEntropy:
-              weight: 'torch.tensor([0.120725, 0.1242547, 0.1245886, 0.128166, 0.1245886, 0.1304555, 0.1219652, 0.1252564]).to("cuda")'
-          output_transform: 'lambda x: (x[0], x[1], x[2])'
+            module: torch.nn
+            class: CrossEntropyLoss
+            CrossEntropyLoss:
+              weight: "torch.tensor([0.1088215, 0.1114017, 0.1116109, 0.1142608, 0.1116457, 0.1159344, 0.109728, 0.1121339, 0.104463]).to('cuda')"
+          output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
         class: Accuracy
@@ -78,7 +83,7 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/doc_orientation/VEHICLE_REGISTRATION/mobilenetv3_small/2110051402/best_model_44_loss=-0.0000.pt'''
+    checkpoint_path: '''checkpoint/doc_classification/VEHICLE_REGISTRATION/mobilenetv3_small/2110080005/best_model_29_loss=-0.0020.pt'''
     mode: '''test'''
 
 comparer:

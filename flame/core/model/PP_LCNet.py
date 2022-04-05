@@ -273,7 +273,7 @@ def PPLCNet_x2_5(**kwargs):
 
 if __name__ == "__main__":
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = PPLCNet_x0_25(num_classes=1000).to(device)
+    model = PPLCNet(scale=0.25, num_classes=1000).to(device)  # version: x0.25
     dummy_input = torch.rand(size=[8, 3, 224, 224], dtype=torch.float32, device=device)
     output = model(dummy_input)
 

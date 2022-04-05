@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 from typing import Optional, Callable, List, Tuple
 
 
-class TextRotationDataset(Dataset):
+class TextDirection(Dataset):
     def __init__(
         self,
         datadirs: List[str] = None,
@@ -22,7 +22,7 @@ class TextRotationDataset(Dataset):
         transforms: Optional[List[Callable]] = None,
         max_transform: int = 5,
     ):
-        super(TextRotationDataset, self).__init__()
+        super(TextDirection, self).__init__()
         self.inner_size = inner_size
         self.image_ratio = image_ratio
         self.image_height = image_height

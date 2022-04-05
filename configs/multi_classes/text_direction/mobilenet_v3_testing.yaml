@@ -5,8 +5,8 @@ data:
     DataLoader:
       dataset:
         module: flame.core.data.text_rotation
-        class: TextRotationDataset
-        TextRotationDataset:
+        class: TextDirection
+        TextDirection:
           datadirs:
             - '''dataset/multi_classes/text_rotation/test/name_card/'''
           image_pattern: '''**/*.jpg'''
