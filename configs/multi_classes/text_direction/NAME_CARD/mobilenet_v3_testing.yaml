@@ -1,0 +1,91 @@
+data:
+  test:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: flame.core.data.text_direction
+        class: TextDirection
+        TextDirection:
+          datadirs:
+            - '''dataset/multi_classes/text_direction/test/name_card/'''
+          image_pattern: '''**/*.jpg'''
+          image_height: 32
+          image_ratio: 20
+          inner_size: 48
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
+      batch_size: 64
+      shuffle: False
+      pin_memory: True
+      drop_last: False
+      num_workers: 12
+
+model:
+  module: flame.core.model.mobilenets.mobilenetv3_large
+  class: MobileNetV3Large
+  MobileNetV3Large:
+    num_classes: 1
+    pretrained: False
+    features_fixed: False
+
+metrics:
+  module: flame.handlers.metrics.metrics
+  class: Metrics
+  Metrics:
+    metrics:
+      loss:
+        module: flame.handlers.metrics.loss
+        class: Loss
+        Loss:
+          loss_fn: torch.nn.BCEWithLogitsLoss()
+          output_transform: 'lambda x: (x[0], x[1])'
+      accuracy:
+        module: ignite.metrics
+        class: Accuracy
+        Accuracy:
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
+      precision:
+        module: ignite.metrics
+        class: Precision
+        Precision:
+          average: True
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
+      recall:
+        module: ignite.metrics
+        class: Recall
+        Recall:
+          average: True
+          output_transform: 'lambda x: (x[0].sigmoid().round(), x[1])'
+    attach_to:
+      engine: '''test'''
+
+screenlogger:
+  module: flame.handlers.screenlogger
+  class: ScreenLogger
+  ScreenLogger:
+    eval_names:
+      - '''test'''
+
+checkpoint_loader:
+  module: flame.handlers.checkpoint
+  class: CheckpointLoader
+  CheckpointLoader:
+    checkpoint_path: '''checkpoint/multi_classes/text_direction/2111151445/best_model_65_loss=-0.0193.pt'''
+    mode: '''test'''
+
+comparer:
+  module: flame.handlers.pred_data_comparer
+  class: PredDataComparer
+  PredDataComparer:
+    output_transform: 'lambda x: (x[0].sigmoid(), x[1], x[2])'
+
+engine:
+  module: flame.core.engine.engine
+  class: Evaluator
+  Evaluator:
+    dataset: config['data']['test']
+    device: '''cuda'''
+
+extralibs:
+  torch: torch

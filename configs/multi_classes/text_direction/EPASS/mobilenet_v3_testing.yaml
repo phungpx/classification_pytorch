@@ -4,14 +4,14 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_rotation
+        module: flame.core.data.text_direction
         class: TextDirection
         TextDirection:
           datadirs:
-            - '''dataset/multi_classes/text_rotation/test/name_card/'''
+            - '''dataset/multi_classes/EPASS/test/'''
           image_pattern: '''**/*.jpg'''
           image_height: 32
-          image_ratio: 20
+          image_ratio: 8
           inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
@@ -22,12 +22,11 @@ data:
       num_workers: 12
 
 model:
-  module: flame.core.model.mobilenets.mobilenetv3_large
-  class: MobileNetV3Large
-  MobileNetV3Large:
+  module: flame.core.model.mobilenets.mobilenetv3
+  class: MobileNetV3Small
+  MobileNetV3Small:
     num_classes: 1
     pretrained: False
-    features_fixed: False
 
 metrics:
   module: flame.handlers.metrics.metrics
@@ -71,7 +70,7 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/multi_classes/text_rotation/2111151445/best_model_65_loss=-0.0193.pt'''
+    checkpoint_path: '''checkpoint/multi_classes/text_direction/EPASS/2204051619/best_model_145_loss=-0.0001.pt'''
     mode: '''test'''
 
 comparer:

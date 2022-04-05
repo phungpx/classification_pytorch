@@ -4,14 +4,14 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_rotation
+        module: flame.core.data.text_direction
         class: TextDirection
         TextDirection:
           datadirs:
-            - '''dataset/multi_classes/text_rotation/train/name_card/'''
-          image_pattern: '''**/*.jpg'''
+            - '''dataset/multi_classes/EPASS/train/'''
+          image_pattern: '''**/*.*'''
           image_height: 32
-          image_ratio: 20
+          image_ratio: 8
           inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
@@ -30,7 +30,7 @@ data:
             - iaa.Clouds()
             - iaa.Dropout()
           max_transform: 5
-      batch_size: 64
+      batch_size: 128
       shuffle: True
       pin_memory: True
       drop_last: False
@@ -41,18 +41,18 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_rotation
+        module: flame.core.data.text_direction
         class: TextDirection
         TextDirection:
           datadirs:
-            - '''dataset/multi_classes/text_rotation/train/name_card/'''
-          image_pattern: '''**/*.jpg'''
+            - '''dataset/multi_classes/EPASS/train/'''
+          image_pattern: '''**/*.*'''
           image_height: 32
-          image_ratio: 20
+          image_ratio: 8
           inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
-      batch_size: 64
+      batch_size: 128
       shuffle: False
       pin_memory: True
       drop_last: False
@@ -63,18 +63,18 @@ data:
     class: DataLoader
     DataLoader:
       dataset:
-        module: flame.core.data.text_rotation
+        module: flame.core.data.text_direction
         class: TextDirection
         TextDirection:
           datadirs:
-            - '''dataset/multi_classes/text_rotation/valid/name_card/'''
-          image_pattern: '''**/*.jpg'''
+            - '''dataset/multi_classes/EPASS/valid/'''
+          image_pattern: '''**/*.*'''
           image_height: 32
-          image_ratio: 20
+          image_ratio: 8
           inner_size: 48
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
-      batch_size: 64
+      batch_size: 128
       shuffle: False
       pin_memory: True
       drop_last: False
@@ -88,12 +88,11 @@ loss:
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
-  module: flame.core.model.mobilenets.mobilenetv3_small
-  class: DenseNet
-  DenseNet:
+  module: flame.core.model.mobilenets.mobilenetv3
+  class: MobileNetV3Small
+  MobileNetV3Small:
     num_classes: 1
     pretrained: True
-    features_fixed: False
 
 optim:
   module: torch.optim
@@ -196,7 +195,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/multi_classes/text_rotation'''
+    dirname: '''checkpoint/multi_classes/text_direction/EPASS/'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -214,7 +213,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/multi_classes/text_rotation'''
+    dirname: '''checkpoint/multi_classes/text_direction/EPASS/'''
     save_interval: 1
     n_saved: 1
 
