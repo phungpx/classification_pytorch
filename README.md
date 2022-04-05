@@ -8,6 +8,21 @@ Implement models for multi-classes, multi-labels classification tasks
 - [x] [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](https://arxiv.org/pdf/1905.11946.pdf)
 - [x] [PP-LCNet: : A Lightweight CPU Convolutional Neural Network](https://arxiv.org/pdf/2109.15099.pdf)
 
+```python3
+from mobilenets.mobilenetv3 import MobileNetV3Small, MobileNetV3Large
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model = MobileNetV3Small(num_classes=10, pretrained=True).to(device)
+# model = MobileNetV3Large(num_classes=10, pretrained=True).to(device)
+dummy_input = torch.rand(size=[8, 3, 224, 224], dtype=torch.float32, device=device)
+output = model(dummy_input)
+
+print(f"Input Shape: {dummy_input.shape}")
+print(f"Output Shape: {output.shape}")
+print(f"Number of parameters: {sum((p.numel() for p in model.parameters() if p.requires_grad))}")
+
+```
+
 # 2. Criteria and Metric
 - [x] Cross entropy
 - [x] Focal Loss 
