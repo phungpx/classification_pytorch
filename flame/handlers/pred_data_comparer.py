@@ -14,5 +14,5 @@ class PredDataComparer(Module):
     def compare(self, engine):
         preds, targets, image_paths = self.output_transform(engine.state.output)
         for pred, target, image_path in zip(preds, targets, image_paths):
-            if pred.argmax() != target:
+            if pred.argmax() != target:  # just using for comparing multi classes task.
                 print(f'Target and prediction are different in {image_path}, pred: {pred.argmax()}, conf: {pred.max().item():.3f}, target: {target.item()}')

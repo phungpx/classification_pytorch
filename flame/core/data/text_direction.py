@@ -15,7 +15,7 @@ class TextDirection(Dataset):
         datadirs: List[str] = None,
         image_pattern: str = '*.jpg',
         image_height: int = 32,  # fix heigh of text line image, width = image_ratio * image_height
-        image_ratio: int = 20,  # ensure ratio of image (w / h)
+        image_ratio: int = 8,  # ensure ratio of image (w / h)
         inner_size: int = 48,  # fixed dimension for min dimension of image
         mean: Optional[Tuple[float, float, float]] = None,
         std: Optional[Tuple[float, float, float]] = None,

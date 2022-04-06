@@ -9,7 +9,7 @@ data:
         TextDirection:
           datadirs:
             - '''dataset/multi_classes/EPASS/test/'''
-          image_pattern: '''**/*.jpg'''
+          image_pattern: '''**/*.*'''
           image_height: 32
           image_ratio: 8
           inner_size: 48
@@ -70,13 +70,15 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/multi_classes/text_direction/EPASS/2204051619/best_model_145_loss=-0.0001.pt'''
+    checkpoint_path: '''checkpoint/multi_classes/text_direction/EPASS/2204051754/best_model_40_loss=-0.0021.pt'''
     mode: '''test'''
 
 comparer:
-  module: flame.handlers.pred_data_comparer
-  class: PredDataComparer
-  PredDataComparer:
+  module: flame.handlers.pred_comparer
+  class: Comparer
+  Comparer:
+    is_binary: True
+    pred_threshold: 0.5
     output_transform: 'lambda x: (x[0].sigmoid(), x[1], x[2])'
 
 engine:
