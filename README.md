@@ -27,3 +27,5 @@ print(f"Number of parameters: {sum((p.numel() for p in model.parameters() if p.r
 - [x] Cross entropy
 - [x] Focal Loss 
 - [x] Accuracy, Recall, Precision, F1-Score
+- [ ] FAR (False Acception Rate)
+- [ ] FRR (False Rejection Rate)
