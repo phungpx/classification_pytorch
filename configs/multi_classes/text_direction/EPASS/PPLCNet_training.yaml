@@ -9,6 +9,7 @@ data:
         TextDirection:
           datadirs:
             - '''dataset/multi_classes/EPASS/train/'''
+            - '''dataset/multi_classes/EPASS/test/'''
           image_pattern: '''**/*.*'''
           image_height: 32
           image_ratio: 8
@@ -46,6 +47,7 @@ data:
         TextDirection:
           datadirs:
             - '''dataset/multi_classes/EPASS/train/'''
+            - '''dataset/multi_classes/EPASS/test/'''
           image_pattern: '''**/*.*'''
           image_height: 32
           image_ratio: 8
@@ -195,7 +197,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/multi_classes/text_direction/EPASS/'''
+    dirname: '''checkpoint/multi_classes/text_direction/EPASS/PP_LCNet/'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -213,7 +215,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/multi_classes/text_direction/EPASS/'''
+    dirname: '''checkpoint/multi_classes/text_direction/EPASS/PP_LCNet/'''
     save_interval: 1
     n_saved: 1
 

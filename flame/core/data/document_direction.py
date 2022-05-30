@@ -13,7 +13,7 @@ class DocumentDirection(Dataset):
         self,
         data_dirs: List[str],
         classes: Dict[str, int],
-        image_pattern: str,
+        image_patterns: List[str],
         image_size: Tuple[int, int],
         inner_size: int,
         mean: Optional[Tuple[float, float, float]] = None,
@@ -38,12 +38,16 @@ class DocumentDirection(Dataset):
                 if not Path(data_dir).joinpath(class_name).exists():
                     raise FileNotFoundError(f'Folder {class_name} does not exist.')
 
-        self.image_paths = []
-        for data_dir in data_dirs:
-            for class_name in classes:
-                self.image_paths.append((Path(data_dir).joinpath(class_name).glob(image_pattern), class_name))
+        self.image_paths: List[Tuple[List[Path], str]] = []
+        for class_name in classes:
+            class_image_paths = []
+            for data_dir in data_dirs:
+                for image_pattern in image_patterns:
+                    class_image_paths.extend(list(Path(data_dir).joinpath(class_name).glob(image_pattern)))
 
-        self.image_paths = [(path, name) for paths, name in self.image_paths for path in paths]
+            self.image_paths.append((class_image_paths, class_name))
+
+        self.image_paths = [(image_path, class_name) for _image_paths, class_name in self.image_paths for image_path in _image_paths]
         self.image_paths = [(image_path, i, class_name) for image_path, class_name in self.image_paths for i in range(4)]
 
         print(f"{', '.join([Path(data_dir).stem for data_dir in data_dirs])} - {len(self.image_paths)}")
@@ -69,7 +73,7 @@ class DocumentDirection(Dataset):
         sample = cv2.resize(sample, dsize=self.image_size)
         sample = np.ascontiguousarray(sample)
         sample = torch.from_numpy(sample)
-        sample = sample.permute(2, 0, 1).to(torch.float)
+        sample = sample.permute(2, 0, 1).contiguous().float()
 
         if (self.mean is not None) and (self.std is not None):
             sample = (sample.div(255.) - self.mean) / self.std

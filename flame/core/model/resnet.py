@@ -2,10 +2,10 @@ import torch.nn as nn
 from torchvision import models
 
 
-class Resnet50(nn.Module):
-    def __init__(self, num_classes, pretrained, features_fixed):
-        super(Resnet50, self).__init__()
-        self.model = models.resnet50(progress=True, pretrained=pretrained)
+class Resnet(nn.Module):
+    def __init__(self, version: str = 'resnet18', num_classes: int = 1000, pretrained: bool = False, features_fixed: bool = False):
+        super(Resnet, self).__init__()
+        self.model = getattr(models, version)(pretrained=pretrained)
         for parameters in self.model.parameters():
             parameters.requires_grad = not features_fixed
         self.model.fc = nn.Linear(in_features=2048, out_features=num_classes)

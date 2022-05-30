@@ -8,7 +8,7 @@ from typing import List, Tuple, Dict, Optional
 from torch.utils.data import Dataset
 
 
-class DocumentClassification(Dataset):
+class MixupClassification(Dataset):
     def __init__(
         self,
         datadirs: List[str],
@@ -21,9 +21,9 @@ class DocumentClassification(Dataset):
         required_transforms: Optional[list] = None,
         optional_transforms: Optional[list] = None,
         max_transforms: int = 5,
-        opencv_threads: int = 4
+        opencv_threads: int = 4,
     ):
-        super(DocumentClassification, self).__init__()
+        super(MixupClassification, self).__init__()
         cv2.setNumThreads(opencv_threads)
         self.classes = classes
         self.image_size = image_size
@@ -34,11 +34,6 @@ class DocumentClassification(Dataset):
 
         self.mean = torch.tensor(mean, dtype=torch.float).view(3, 1, 1) if mean is not None else None
         self.std = torch.tensor(std, dtype=torch.float).view(3, 1, 1) if std is not None else None
-
-        # for datadir in datadirs:
-        #     for class_name in classes:
-        #         if not Path(datadir).joinpath(class_name).exists():
-        #             raise FileNotFoundError(f'Folder {class_name} does not exist.')
 
         self.image_paths = []
         for datadir in datadirs:
