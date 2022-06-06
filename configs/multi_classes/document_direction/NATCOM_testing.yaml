@@ -8,12 +8,20 @@ data:
         class: DocumentDirection
         DocumentDirection:
           data_dirs:
-            - '''/extdata/ocr/phungpx/projects/PHUNGPX/semantic_segmentation_pytorch/dataset/NATCOM/test/'''
+            - '''/extdata/ocr/phungpx/projects/PHUNGPX/semantic_segmentation_pytorch/dataset/NATCOM2/test/'''
           classes:
             CARD_FRONT_TYPE_1: 0
             CARD_BACK_TYPE_1: 1
-          image_pattern: '''**/*.*'''
+          image_patterns:
+            - '''**/*_quad.jpg'''
+            - '''**/*_quad.png'''
+            - '''**/*_quad.jpeg'''
+            - '''**/*_quad.JPG'''
+            - '''**/*_quad.PNG'''
+            - '''**/*_quad.JPEG'''
           image_size: (224, 224)
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
           inner_size: 256
       batch_size: 64
       shuffle: False
@@ -39,7 +47,7 @@ metrics:
             module: flame.core.loss.weighted_supclasses_crossentropy
             class: WeightedSupclassesCrossEntropy
             WeightedSupclassesCrossEntropy:
-              weight: 'torch.tensor([0.2346491, 0.7653509]).to("cuda")'
+              weight: 'torch.tensor([0.2392241, 0.7607759]).to("cuda")'
           output_transform: 'lambda x: (x[0], x[1], x[2])'
       accuracy:
         module: ignite.metrics
@@ -72,13 +80,13 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/document_direction/NATCOM/mobilenetv3_small/'''
+    checkpoint_path: '''checkpoint/document_direction/NATCOM/mobilenetv3_small/2205301639/best_model_73_loss=-0.0147.pt'''
     mode: '''test'''
 
 comparer:
-  module: flame.handlers.pred_data_comparer
-  class: PredDataComparer
-  PredDataComparer:
+  module: flame.handlers.pred_comparer
+  class: Comparer
+  Comparer:
     is_multiclass: True
     output_transform: 'lambda x: (x[0].softmax(dim=1), x[1], x[-1])'
 
