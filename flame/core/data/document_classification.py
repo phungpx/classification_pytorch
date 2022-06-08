@@ -43,6 +43,8 @@ class DocumentClassification(Dataset):
         self.image_paths = []
         for datadir in datadirs:
             for class_name in classes:
+                if not Path(datadir).joinpath(class_name).exists():
+                    continue
                 for image_pattern in image_patterns:
                     self.image_paths.append((Path(datadir).joinpath(class_name).glob(image_pattern), class_name))
 
