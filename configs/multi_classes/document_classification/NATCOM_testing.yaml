@@ -8,22 +8,16 @@ data:
         class: DocumentClassification
         DocumentClassification:
           datadirs:
-            - '''dataset/multi_classes/doc_classification/VEHICLE_REGISTRATION/test'''
+            - '''/extdata/ocr/phungpx/projects/PHUNGPX/semantic_segmentation_pytorch/dataset/NATCOM2/test/'''
+            - '''dataset/multi_classes/document_classification/VEHICLE_REGISTRATION/test/'''
           classes:
-            DKX_BACK_TYPE_1: 0
-            DKX_TYPE_1: 1
-            DKX_BACK_TYPE_2: 2
-            DKX_TYPE_2: 3
-            DKX_BACK_TYPE_3: 4
-            DKX_TYPE_3: 5
-            DKX_BACK_TYPE_5: 6
-            DKX_FRONT_TYPE_5: 7
-            OTHERS: 8
-          image_patterns:
-            - '''**/*.*'''
+            CARD_FRONT_TYPE_1: 0
+            CARD_BACK_TYPE_1: 1
+            OTHERS: 2
+          image_patterns: ['''*.*g''', '''*.*G''']
           image_size: (224, 224)
           inner_size: 256
-      batch_size: 64
+      batch_size: 128
       pin_memory: True
       num_workers: 12
       drop_last: False
@@ -33,9 +27,7 @@ model:
   module: flame.core.model.mobilenets.mobilenetv3
   class: MobileNetV3Small
   MobileNetV3Small:
-    num_classes: 9
-    pretrained: False
-    features_fixed: False
+    num_classes: 3
 
 metrics:
   module: flame.handlers.metrics.metrics
@@ -50,7 +42,7 @@ metrics:
             module: torch.nn
             class: CrossEntropyLoss
             CrossEntropyLoss:
-              weight: "torch.tensor([0.1088215, 0.1114017, 0.1116109, 0.1142608, 0.1116457, 0.1159344, 0.109728, 0.1121339, 0.104463]).to('cuda')"
+              weight: "torch.tensor([0.2673039, 0.4268293, 0.3058668]).to('cuda')"
           output_transform: 'lambda x: (x[0], x[1])'
       accuracy:
         module: ignite.metrics
@@ -83,13 +75,14 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/doc_classification/VEHICLE_REGISTRATION/mobilenetv3_small/2110080005/best_model_29_loss=-0.0020.pt'''
+    checkpoint_path: '''checkpoint/document_classification/NATCOM/mobilenetv3_small/2206061350/best_model_114_loss=-0.0000.pt'''
     mode: '''test'''
 
 comparer:
-  module: flame.handlers.pred_data_comparer
-  class: PredDataComparer
-  PredDataComparer:
+  module: flame.handlers.pred_comparer
+  class: Comparer
+  Comparer:
+    is_multiclass: True
     output_transform: 'lambda x: (x[0].softmax(dim=1), x[1], x[-1])'
 
 engine:

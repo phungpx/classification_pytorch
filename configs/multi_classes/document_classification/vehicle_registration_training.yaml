@@ -119,7 +119,7 @@ loss:
     output_transform: 'lambda x: (x[0], x[1])'
 
 model:
-  module: flame.core.model.mobilenets.mobilenetv3_small
+  module: flame.core.model.mobilenets.mobilenetv3
   class: MobileNetV3Small
   MobileNetV3Small:
     num_classes: 9
