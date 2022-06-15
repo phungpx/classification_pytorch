@@ -4,7 +4,9 @@ import random
 import numpy as np
 
 from pathlib import Path
+from collections import defaultdict
 from typing import List, Tuple, Dict, Optional
+
 from torch.utils.data import Dataset
 
 
@@ -35,22 +37,26 @@ class DocumentClassification(Dataset):
         self.mean = torch.tensor(mean, dtype=torch.float).view(3, 1, 1) if mean is not None else None
         self.std = torch.tensor(std, dtype=torch.float).view(3, 1, 1) if std is not None else None
 
-        # for datadir in datadirs:
-        #     for class_name in classes:
-        #         if not Path(datadir).joinpath(class_name).exists():
-        #             raise FileNotFoundError(f'Folder {class_name} does not exist.')
-
-        self.image_paths = []
+        data_stats: Dict[str, list] = defaultdict(list)
         for datadir in datadirs:
             for class_name in classes:
-                if not Path(datadir).joinpath(class_name).exists():
+                class_dir = Path(datadir).joinpath(class_name)
+                if not class_dir.exists():
+                    # print(f"Warning: {str(class_dir)} doesn't exist.")
                     continue
+
                 for image_pattern in image_patterns:
-                    self.image_paths.append((Path(datadir).joinpath(class_name).glob(image_pattern), class_name))
+                    data_stats[class_name].extend(class_dir.glob(image_pattern))
 
-        self.image_paths = [(path, name) for paths, name in self.image_paths for path in paths]
+        self.image_paths: List[Tuple[Path, str]] = []  # List[Tuple[image_path, class_name]]
+        for class_name, class_image_paths in data_stats.items():
+            self.image_paths.extend([(image_path, class_name) for image_path in class_image_paths])
 
-        print(f"{', '.join([Path(datadir).stem for datadir in datadirs])} - {len(self.image_paths)}")
+        print('--' * 20)
+        print(f'[___Dataset Info___]: {Path(datadirs[0]).stem} set - {len(self.image_paths)} files.')
+        for class_name, image_paths in data_stats.items():
+            print(f'\t {class_name}: {len(image_paths)} images.')
+        print('--' * 20)
 
     def __len__(self):
         return len(self.image_paths)
