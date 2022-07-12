@@ -8,35 +8,32 @@ class ScreenLogger(Module):
     def __init__(self, logger=None, writer=None, eval_names=None):
         super(ScreenLogger, self).__init__()
         self.writer = writer
-        self.logger = logger.logger if logger is not None else None
+        self.logger = logger
         self.eval_names = eval_names if eval_names else []
 
-    def verbose(self, msg):
-        if self.logger is not None:
-            self.logger.info(msg)
-        print(msg)
-
     def _started(self, engine):
-        self.verbose(f'{time.asctime()} - STARTED')
+        self.logger.info(f"Model Params: {sum(param.numel() for param in self.frame['model'].parameters() if param.requires_grad)} params.")
+        self.logger.info(f'{time.asctime()} - STARTED')
 
     def _completed(self, engine):
-        self.verbose(f'{time.asctime()} - COMPLETED')
+        self.logger.info(f'{time.asctime()} - COMPLETED')
 
     def _log_screen(self, engine):
-        msg = f'Epoch #{engine.state.epoch} - {time.asctime()} - '
+        self.logger.info('')
+        self.logger.info(f'Epoch #{engine.state.epoch} - {time.asctime()}')
 
         for eval_name in self.eval_names:
+            msg = f'<{eval_name}> - '
             for metric_name, metric_value in self.frame['metrics'].metric_values[eval_name].items():
                 if isinstance(metric_value, float):
-                    msg += f'{eval_name}_{metric_name}: {metric_value:.5f} - '
+                    msg += f'{metric_name}: {metric_value:.5f} - '
                     if self.writer is not None:
                         self.writer.add_scalars(
                             main_tag=metric_name,
                             tag_scalar_dict={eval_name: metric_value},
                             global_step=engine.state.epoch
                         )
-
-        self.verbose(msg[:-2])
+            self.logger.info(msg[:-2])
 
     def init(self):
         assert 'engine' in self.frame, 'The frame does not have engine.'

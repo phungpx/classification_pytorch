@@ -23,3 +23,8 @@ class Logger:
         formatter = logging.Formatter(format)
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
+
+    def info(self, message: str, verbose: bool = True):
+        self.logger.info(message)
+        if verbose:
+            print(message)
