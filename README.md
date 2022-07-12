@@ -1,6 +1,21 @@
 # Classification Task
 Implement models for multi-classes, multi-labels classification tasks
 
+# Note. Run TensorBoard on Server
+You have to create a ssh connection using port forwarding:
+```bash
+ssh -L 16006:127.0.0.1:6006 user@host
+```
+Then you run the tensorboard command:
+
+```bash
+tensorboard --logdir=/path/to/logs
+```
+Then you can easily access the tensorboard in your browser under:
+```bash
+localhost:16006/
+```
+
 # 1. Architectures
 - [ ] [MobileNet V1: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/pdf/1704.04861.pdf)
 - [x] [MobileNet V2: Inverted Residuals and Linear Bottlenecks](https://arxiv.org/pdf/1801.04381.pdf)
