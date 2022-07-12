@@ -180,10 +180,25 @@ metrics:
       train_evaluator: '''train'''
       valid_evaluator: '''valid'''
 
+writer:
+  module: flame.handlers.tensorboard
+  class: TensorBoard
+  TensorBoard:
+    logdir: '''checkpoint/document_classification/EPASS/mobilenetv3_small/'''
+
+logger:
+  module: flame.handlers.logger
+  class: Logger
+  Logger:
+    logdir: '''checkpoint/document_classification/EPASS/mobilenetv3_small/'''
+    logname: '''EPASS'''
+
 screenlogger:
   module: flame.handlers.screenlogger
   class: ScreenLogger
   ScreenLogger:
+    writer: config['writer']
+    logger: config['logger']
     eval_names:
       - '''train'''
       - '''valid'''
@@ -196,7 +211,7 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: ''''''
+    checkpoint_path: '''checkpoint/document_classification/EPASS/mobilenetv3_small/'''
     mode: '''train'''
 
 terminate_on_nan:
@@ -226,7 +241,7 @@ best_saver:
   module: flame.handlers.checkpoint
   class: BestSaver
   BestSaver:
-    dirname: '''checkpoint/doc_classification/EPASS/mobilenetv3_small/'''
+    dirname: '''checkpoint/document_classification/EPASS/mobilenetv3_small/'''
     score_name: '''loss'''
     mode: '''min'''
     evaluator_name: '''valid_evaluator'''
@@ -244,7 +259,7 @@ backup_saver:
       - '''history'''
       - '''lr_scheduler'''
       # - '''early_stopping'''
-    dirname: '''checkpoint/doc_classification/EPASS/mobilenetv3_small/'''
+    dirname: '''checkpoint/document_classification/EPASS/mobilenetv3_small/'''
     save_interval: 1
     n_saved: 1
 

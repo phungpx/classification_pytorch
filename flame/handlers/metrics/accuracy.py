@@ -36,9 +36,11 @@ class Accuracy(Metric):
         # y = torch.where((preds + targets) >= 1, torch.ones_like(targets), torch.zeros_like(targets)).sum(dim=1)
         # accuracy = (1 / targets.shape[0]) * torch.sum(x / y)
         # return accuracy
-        return f1_score(y_true=targets.to(torch.int).cpu().numpy(),
-                        y_pred=preds.to(torch.int).cpu().numpy(),
-                        average='samples')
+        return f1_score(
+            y_true=targets.to(torch.int).cpu().numpy(),
+            y_pred=preds.to(torch.int).cpu().numpy(),
+            average='samples'
+        )
 
     def _is_multiclass(self, preds, targets):
         indices = torch.argmax(preds, dim=1)
