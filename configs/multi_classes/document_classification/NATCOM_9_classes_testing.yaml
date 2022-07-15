@@ -70,6 +70,25 @@ metrics:
           average: True
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
           device: '''cuda'''
+      f1score:
+        module: ignite.metrics.metrics_lambda
+        class: MetricsLambda
+        MetricsLambda:
+          f: 'lambda pre, re: 2 * pre * re / (pre + re)'
+          pre:
+            module: ignite.metrics
+            class: Precision
+            Precision:
+              average: True
+              output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+              device: '''cuda'''
+          re:
+            module: ignite.metrics
+            class: Recall
+            Recall:
+              average: True
+              output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+              device: '''cuda'''
       confusion_matrix:
         module: ignite.metrics
         class: ConfusionMatrix
