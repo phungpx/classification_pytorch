@@ -164,18 +164,21 @@ metrics:
         class: Accuracy
         Accuracy:
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''
       precision:
         module: ignite.metrics
         class: Precision
         Precision:
           average: True
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''
       recall:
         module: ignite.metrics
         class: Recall
         Recall:
           average: True
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''
     attach_to:
       train_evaluator: '''train'''
       valid_evaluator: '''valid'''

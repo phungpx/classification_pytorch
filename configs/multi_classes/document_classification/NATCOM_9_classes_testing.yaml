@@ -55,20 +55,38 @@ metrics:
         class: Accuracy
         Accuracy:
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''
       precision:
         module: ignite.metrics
         class: Precision
         Precision:
           average: True
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''
       recall:
         module: ignite.metrics
         class: Recall
         Recall:
           average: True
           output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''
+      confusion_matrix:
+        module: ignite.metrics
+        class: ConfusionMatrix
+        ConfusionMatrix:
+          num_classes: 9
+          average: None  # None, “samples”, “recall”, “precision”
+          output_transform: 'lambda x: (x[0].softmax(dim=1), x[1])'
+          device: '''cuda'''      
     attach_to:
       engine: '''test'''
+
+logger:
+  module: flame.handlers.logger
+  class: Logger
+  Logger:
+    logdir: '''checkpoint/document_classification/NATCOM/mobilenetv3_small/2206150921/'''
+    logname: '''NATCOM'''
 
 screenlogger:
   module: flame.handlers.screenlogger
@@ -81,7 +99,7 @@ checkpoint_loader:
   module: flame.handlers.checkpoint
   class: CheckpointLoader
   CheckpointLoader:
-    checkpoint_path: '''checkpoint/document_classification/NATCOM/mobilenetv3_small/2206061350/best_model_114_loss=-0.0000.pt'''
+    checkpoint_path: '''checkpoint/document_classification/NATCOM/mobilenetv3_small/2206150921/best_model_17_loss=-0.0097.pt'''
     mode: '''test'''
 
 comparer:
