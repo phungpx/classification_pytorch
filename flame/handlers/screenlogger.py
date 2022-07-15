@@ -5,10 +5,10 @@ from ignite.engine import Events
 
 
 class ScreenLogger(Module):
-    def __init__(self, logger=None, writer=None, eval_names=None):
+    def __init__(self, eval_names=None):
         super(ScreenLogger, self).__init__()
-        self.writer = writer
-        self.logger = logger
+        self.writer = self.frame.get('writer', None)
+        self.logger = self.frame['logger']
         self.eval_names = eval_names if eval_names else []
 
     def _started(self, engine):

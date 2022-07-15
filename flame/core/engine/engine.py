@@ -44,6 +44,7 @@ class Trainer(Engine):
         self.model = self.frame['model'].to(self.device)
         self.optimizer = self.frame['optim']
         self.loss = self.frame['loss']
+        self.writer = self.frame.get('writer', None)
 
     def _update(self, engine, batch):
         self.model.train()
@@ -55,6 +56,15 @@ class Trainer(Engine):
         loss = self.loss(*params)
         loss.backward()
         self.optimizer.step()
+
+        if self.writer is not None:
+            step = engine.state.iteration
+            # log learning_rate
+            current_lr = self.optimizer.param_groups[0]['lr']
+            self.writer.add_scalar(tag='learning_rate', scalar_value=current_lr, global_step=step)
+            # log loss
+            self.writer.add_scalar(tag='train_loss', scalar_value=loss.item(), global_step=step)
+
         return loss.item()
 
 
