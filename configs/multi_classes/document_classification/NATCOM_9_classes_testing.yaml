@@ -87,6 +87,7 @@ logger:
   Logger:
     logdir: '''checkpoint/document_classification/NATCOM/mobilenetv3_small/2206150921/'''
     logname: '''NATCOM'''
+    run_mode: '''testing'''
 
 screenlogger:
   module: flame.handlers.screenlogger
