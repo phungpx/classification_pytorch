@@ -5,6 +5,7 @@ from . import loss
 
 
 class FocalLoss(loss.LossBase):
+    '''Focal Loss'''
     def __init__(
         self,
         alpha: float = 0.5,
