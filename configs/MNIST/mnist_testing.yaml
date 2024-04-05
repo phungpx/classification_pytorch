@@ -48,7 +48,7 @@ metric:
         module: metrics.classification
         class: ConfusionMatrix
         ConfusionMatrix:
-          save_dir: "'checkpoint/MNIST/2404041646/plot/'"
+          save_dir: "'checkpoint/MNIST/2404051455/plot/'"
           classes: 10
           output_transform: "lambda x: (x[0].softmax(dim=1), x[1])"
 

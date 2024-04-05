@@ -121,7 +121,7 @@ logger:
     format: "'%(asctime)s - %(name)s - %(levelname)s - %(message)s'"
 
 model_inspection:
-  module: handlers.model_inspection
+  module: handlers.inspect_model
   class: ModelInspection
   ModelInspection:
     verbose: True

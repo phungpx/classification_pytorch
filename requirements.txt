@@ -1,0 +1,11 @@
+PyYAML
+torch==1.12.1 
+torchvision==0.13.1
+matplotlib
+pandas
+seaborn
+tensorboard
+thop
+tqdm
+imgaug
+natsort

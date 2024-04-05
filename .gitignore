@@ -131,3 +131,4 @@ dmypy.json
 
 # ignore folders
 dataset/
+checkpoint/

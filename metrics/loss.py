@@ -1,5 +1,5 @@
 from typing import Callable
-from ..handlers.evaluator import MetricBase
+from handlers.evaluator import MetricBase
 
 
 class Loss(MetricBase):

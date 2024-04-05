@@ -1,4 +1,4 @@
-# Classification Task
+# Classification
 
 Implement models for multi-classes, multi-labels classification tasks
 
@@ -11,6 +11,7 @@ Implement models for multi-classes, multi-labels classification tasks
 - [X] [PP-LCNet: : A Lightweight CPU Convolutional Neural Network](https://arxiv.org/pdf/2109.15099.pdf)
 - [ ] [CoAtNet: Marrying Convolution and Attention for All Data Sizes](https://arxiv.org/pdf/2106.04803v2.pdf)
 - [ ] [An image is worth 16X16 words: transformers for image recognition at scale](https://arxiv.org/pdf/2010.11929v2.pdf)
+- [ ] [Swin Transformer: Hierarchical Vision Transformer using Shifted Windows](https://arxiv.org/pdf/2103.14030.pdf)
 
 # 2. Criteria and Metric
 
@@ -66,11 +67,11 @@ localhost:16006/
 1. Enhance performace by applying `mixup`
 
    References:
-	- [1][mixup: Beyond Empirical Risk Minimization](https://arxiv.org/pdf/1710.09412.pdf)
-	- [2] [mixup-cifar10](https://github.com/facebookresearch/mixup-cifar10)
-	- [3] [Enhancing Neural Networks with Mixup in Pytorch](https://towardsdatascience.com/enhancing-neural-networks-with-mixup-in-pytorch-5129d261bc4a)
 
-3. Pruning Techniques
-4. Semi-supervised Learning
-5. Unsupervised Learning
-6. Self-supervised Learning
+   - [1][mixup: Beyond Empirical Risk Minimization](https://arxiv.org/pdf/1710.09412.pdf)
+   - [2] [mixup-cifar10](https://github.com/facebookresearch/mixup-cifar10)
+   - [3] [Enhancing Neural Networks with Mixup in Pytorch](https://towardsdatascience.com/enhancing-neural-networks-with-mixup-in-pytorch-5129d261bc4a)
+2. Pruning Techniques
+3. Semi-supervised Learning
+4. Unsupervised Learning
+5. Self-supervised Learning

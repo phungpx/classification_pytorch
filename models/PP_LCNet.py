@@ -6,10 +6,10 @@ https://arxiv.org/pdf/2109.15099.pdf.
 import from https://github.com/ngnquan/PP-LCNet
 """
 
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 
 __all___ = [
