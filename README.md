@@ -37,8 +37,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py configs/MNIST/testing.yaml --gpu-ind
 
 ### Resume
 
-```
-	CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --config config/MNIST/training.yaml --num-epoch 20 --num-gpus 0,1,2,3 --resume-path <str>
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --config config/MNIST/training.yaml --num-epoch 20 --num-gpus 0,1,2,3 --resume-path <str>
 ```
 
 ### Note. Run TensorBoard on Server
@@ -66,12 +66,11 @@ localhost:16006/
 1. Enhance performace by applying `mixup`
 
    References:
+	- [1][mixup: Beyond Empirical Risk Minimization](https://arxiv.org/pdf/1710.09412.pdf)
+	- [2] [mixup-cifar10](https://github.com/facebookresearch/mixup-cifar10)
+	- [3] [Enhancing Neural Networks with Mixup in Pytorch](https://towardsdatascience.com/enhancing-neural-networks-with-mixup-in-pytorch-5129d261bc4a)
 
-- [1][mixup: Beyond Empirical Risk Minimization](https://arxiv.org/pdf/1710.09412.pdf)
-- [2] [mixup-cifar10](https://github.com/facebookresearch/mixup-cifar10)
-- [3] [Enhancing Neural Networks with Mixup in Pytorch](https://towardsdatascience.com/enhancing-neural-networks-with-mixup-in-pytorch-5129d261bc4a)
-
-2. Pruning Techniques
-3. Semi-supervised Learning
-4. Unsupervised Learning
-5. Self-supervised Learning
+3. Pruning Techniques
+4. Semi-supervised Learning
+5. Unsupervised Learning
+6. Self-supervised Learning
