@@ -9,7 +9,7 @@ Implement models for multi-classes, multi-labels classification tasks
 - [X] [MobileNet V3: Searching for MobileNetV3](https://arxiv.org/pdf/1905.02244.pdf)
 - [X] [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](https://arxiv.org/pdf/1905.11946.pdf)
 - [X] [PP-LCNet: : A Lightweight CPU Convolutional Neural Network](https://arxiv.org/pdf/2109.15099.pdf)
-- [ ] [CoAtNet: Marrying Convolution and Attention for All Data Sizes](https://arxiv.org/pdf/2106.04803v2.pdf)
+- [x] [CoAtNet: Marrying Convolution and Attention for All Data Sizes](https://arxiv.org/pdf/2106.04803v2.pdf)
 - [ ] [An image is worth 16X16 words: transformers for image recognition at scale](https://arxiv.org/pdf/2010.11929v2.pdf)
 - [ ] [Swin Transformer: Hierarchical Vision Transformer using Shifted Windows](https://arxiv.org/pdf/2103.14030.pdf)
 
