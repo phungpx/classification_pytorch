@@ -1,0 +1,66 @@
+data:
+  test:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: torchvision.datasets
+        class: MNIST
+        MNIST:
+          root: "'dataset/mnist'"
+          train: False
+          download: True
+          transform: transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+      batch_size: 64
+      shuffle: False
+      num_workers: 2
+
+model:
+  module: models.mnist_net
+  class: Net
+  Net:
+    num_classes: 10
+
+metric:
+  module: handlers.evaluator
+  class: Metrics
+  Metrics:
+    metrics:
+      accuracy:
+        module: metrics.classification
+        class: Metric
+        Metric:
+          metric_fn:
+            module: metrics.classification
+            class: Accuracy
+            Accuracy:
+              num_classes: 10
+          output_transform: "lambda x: (x[0].softmax(dim=1), x[1])"
+      loss:
+        module: metrics.loss
+        class: Loss
+        Loss:
+          loss_fn:
+            module: torch.nn
+            class: CrossEntropyLoss
+          output_transform: "lambda x: (x[0], x[1])"
+      confusion_matrix:
+        module: metrics.classification
+        class: ConfusionMatrix
+        ConfusionMatrix:
+          save_dir: "'checkpoint/MNIST/2404041646/plot/'"
+          classes: 10
+          output_transform: "lambda x: (x[0].softmax(dim=1), x[1])"
+
+evaluator:
+  module: engine
+  class: Evaluator
+  Evaluator:
+    data: config['data']['test']
+    model: config['model']
+    metric: config['metric']
+
+extralibs:
+  torch: torch
+  logging: logging
+  transforms: torchvision.transforms

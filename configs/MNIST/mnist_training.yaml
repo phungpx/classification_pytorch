@@ -1,0 +1,155 @@
+data:
+  train:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: torchvision.datasets
+        class: MNIST
+        MNIST:
+          root: "'./dataset/mnist'"
+          train: True
+          download: True
+          transform: transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+      batch_size: 64
+      shuffle: True
+      num_workers: 2
+
+  valid:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: torchvision.datasets
+        class: MNIST
+        MNIST:
+          root: "'./dataset/mnist'"
+          train: False
+          download: True
+          transform: transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+      batch_size: 64
+      shuffle: False
+      num_workers: 2
+
+model:
+  module: models.mnist_net
+  class: Net
+  Net:
+    num_classes: 10
+
+loss:
+  module: losses.loss
+  class: Loss
+  Loss:
+    loss_fn:
+      module: torch.nn
+      class: CrossEntropyLoss
+    output_transform: "lambda x: (x[0], x[1])"
+
+optim:
+  module: torch.optim
+  class: Adam
+  Adam:
+    params: config['model'].parameters()
+    lr: 0.001
+    amsgrad: True
+
+lr_scheduler:
+  module: handlers.lr_scheduler
+  class: ReduceLROnPlateau
+  ReduceLROnPlateau:
+    evaluator_name: "'valid'"
+    score_name: "'loss'"
+    optim: config['optim']
+    mode: "'min'"
+    factor: 0.1
+    patience: 3
+    verbose: True
+
+early_stopping:
+  module: handlers.early_stopping
+  class: EarlyStopping
+  EarlyStopping:
+    evaluator_name: "'valid'"
+    score_name: "'loss'"
+    patience: 2
+    delta: 0
+    mode: "'min'"
+
+metric:
+  module: handlers.evaluator
+  class: Metrics
+  Metrics:
+    metrics:
+      accuracy:
+        module: metrics.classification
+        class: Metric
+        Metric:
+          metric_fn:
+            module: metrics.classification
+            class: Accuracy
+            Accuracy:
+              num_classes: 10
+          output_transform: "lambda x: (x[0].softmax(dim=1), x[1])"
+      loss:
+        module: metrics.loss
+        class: Loss
+        Loss:
+          loss_fn:
+            module: torch.nn
+            class: CrossEntropyLoss
+          output_transform: "lambda x: (x[0], x[1])"
+
+writer:
+  module: handlers.writer
+  class: Writer
+  Writer:
+    save_dir: "'checkpoint/MNIST/'"
+
+plotter:
+  module: handlers.plotter
+  class: Plotter
+  Plotter:
+    save_dir: "'checkpoint/MNIST/'"
+
+logger:
+  module: handlers.logger
+  class: Logger
+  Logger:
+    save_dir: "'checkpoint/MNIST/'"
+    mode: logging.DEBUG
+    format: "'%(asctime)s - %(name)s - %(levelname)s - %(message)s'"
+
+model_inspection:
+  module: handlers.model_inspection
+  class: ModelInspection
+  ModelInspection:
+    verbose: True
+    input_shape: "(28, 28, 1)"
+
+trainer:
+  module: engine
+  class: Trainer
+  Trainer:
+    project_name: "'MNIST'"
+    data:
+      train: config['data']['train']
+      train_eval: config['data']['train']
+      valid: config['data']['valid']
+      test: config['data']['valid']
+    model: config['model']
+    loss: config['loss']
+    optim: config['optim']
+    metric: config['metric']
+    early_stopping: config['early_stopping']
+    lr_scheduler: config['lr_scheduler']
+    logger: config['logger']
+    writer: config['writer']
+    plotter: config['plotter']
+    model_inspection: config['model_inspection']
+    save_dir: "'checkpoint/MNIST/'"
+
+extralibs:
+  torch: torch
+  logging: logging
+  transforms: torchvision.transforms
