@@ -1,0 +1,67 @@
+data:
+  test:
+    module: torch.utils.data
+    class: DataLoader
+    DataLoader:
+      dataset:
+        module: torchvision.datasets
+        class: CIFAR10
+        CIFAR10:
+          root: "'./dataset/cifar10'"
+          train: False
+          download: True
+          transform: transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])])
+      batch_size: 64
+      shuffle: False
+      num_workers: 2
+
+model:
+  module: models.mobilenets.mobilenetv3
+  class: MobileNetV3Small
+  MobileNetV3Small:
+    num_classes: 10
+    pretrained: True
+
+metric:
+  module: handlers.evaluator
+  class: Metrics
+  Metrics:
+    metrics:
+      accuracy:
+        module: metrics.classification
+        class: Metric
+        Metric:
+          metric_fn:
+            module: metrics.classification
+            class: Accuracy
+            Accuracy:
+              num_classes: 10
+          output_transform: "lambda x: (x[0].softmax(dim=1), x[1])"
+      loss:
+        module: metrics.loss
+        class: Loss
+        Loss:
+          loss_fn:
+            module: torch.nn
+            class: CrossEntropyLoss
+          output_transform: "lambda x: (x[0], x[1])"
+      confusion_matrix:
+        module: metrics.classification
+        class: ConfusionMatrix
+        ConfusionMatrix:
+          save_dir: "'checkpoint/CIFAR10/2404051455/plot/'"
+          classes: 10
+          output_transform: "lambda x: (x[0].softmax(dim=1), x[1])"
+
+evaluator:
+  module: engine
+  class: Evaluator
+  Evaluator:
+    data: config['data']['test']
+    model: config['model']
+    metric: config['metric']
+
+extralibs:
+  torch: torch
+  logging: logging
+  transforms: torchvision.transforms
